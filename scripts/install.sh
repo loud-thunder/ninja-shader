@@ -20,7 +20,44 @@ DEST_DIR="/usr/local/bin"
 DEST_BIN="${DEST_DIR}/ninja-shader"
 USE_SUDO=false
 
-if [[ -w "${DEST_DIR}" ]]; then
+TARGET_MODE="${1:-}"
+
+prompt_destination_choice() {
+    # Attempt to restore terminal line discipline if raw mode was left enabled
+    stty sane 2>/dev/null || stty icrnl icanon echo 2>/dev/null || true
+
+    printf "Select option [1/2] (default: 1): " >&2
+
+    local char=""
+    local choice=""
+    while IFS= read -r -n 1 char; do
+        # Break on newline, carriage return (^M), or EOF
+        if [[ -z "$char" || "$char" == $'\n' || "$char" == $'\r' ]]; then
+            break
+        elif [[ "$char" == $'\x7f' || "$char" == $'\b' ]]; then
+            # Handle backspace
+            if [[ -n "$choice" ]]; then
+                choice="${choice%?}"
+                printf "\b \b" >&2
+            fi
+        else
+            choice+="$char"
+        fi
+    done
+    printf "\n" >&2
+    choice="${choice:-1}"
+    echo "$choice"
+}
+
+if [[ "${TARGET_MODE}" == "--user" || "${TARGET_MODE}" == "--local" ]]; then
+    DEST_DIR="${HOME}/.local/bin"
+    DEST_BIN="${DEST_DIR}/ninja-shader"
+    mkdir -p "${DEST_DIR}"
+elif [[ "${TARGET_MODE}" == "--system" || "${TARGET_MODE}" == "--sudo" ]]; then
+    if [[ ! -w "${DEST_DIR}" ]]; then
+        USE_SUDO=true
+    fi
+elif [[ -w "${DEST_DIR}" ]]; then
     echo "==> ${DEST_DIR} is writable. Creating symlink..."
 else
     echo "==> ${DEST_DIR} requires elevated privileges."
@@ -28,7 +65,7 @@ else
         echo "Choose installation destination:"
         echo "  [1] Elevate with sudo -> ${DEST_BIN}"
         echo "  [2] Install to user directory -> ${HOME}/.local/bin/ninja-shader"
-        read -r -p "Select option [1/2] (default: 1): " CHOICE
+        CHOICE="$(prompt_destination_choice)"
         case "${CHOICE}" in
             2)
                 DEST_DIR="${HOME}/.local/bin"
