@@ -1,7 +1,9 @@
 use crate::cli::GuiArgs;
 use crate::gpu::{resolve_shader_manifest, GpuEngine};
 use crate::manifest::{ParamType, ParamValue, ShaderManifest};
-use crate::pipeline_config::PipelineConfig;
+use crate::pipeline_config::{
+    DistanceMetric, GeneratorConfig, GeneratorKind, GeneratorMode, PipelineConfig, TextureInput,
+};
 use crate::video::{VideoDecoder, VideoEncoder, VideoMetadata, VideoProbe};
 use anyhow::Result;
 use std::path::{Path, PathBuf};
@@ -1055,6 +1057,7 @@ impl GuiApp {
         let mut new_pipeline_to_load = None;
         let mut pick_video_requested = false;
         let mut pick_output_dir_requested = false;
+        let mut pick_texture_requested: Option<(usize, String)> = None;
         let mut trigger_start_render = false;
         let mut trigger_cancel_render = false;
         let mut trigger_restart = false;
@@ -1088,26 +1091,32 @@ impl GuiApp {
                                 .default_open(true)
                                 .show(ui, |ui| {
                                     ui.label(egui::RichText::new("Input Video:").small());
-                                    ui.horizontal(|ui| {
-                                        let name = self
-                                            .input_video_path
-                                            .as_ref()
-                                            .and_then(|p| p.file_name())
-                                            .map(|n| n.to_string_lossy().to_string())
-                                            .unwrap_or_else(|| "No video selected".into());
+                                    let name = self
+                                        .input_video_path
+                                        .as_ref()
+                                        .and_then(|p| p.file_name())
+                                        .map(|n| n.to_string_lossy().to_string())
+                                        .unwrap_or_else(|| "No video selected".into());
+                                    let full_path = self
+                                        .input_video_path
+                                        .as_ref()
+                                        .map(|p| p.display().to_string())
+                                        .unwrap_or_else(|| "No video selected".into());
 
-                                        ui.add(
-                                            egui::Label::new(
-                                                egui::RichText::new(name).strong().monospace(),
-                                            )
-                                            .truncate(),
-                                        );
-                                        if ui.button("Browse...").clicked() {
-                                            pick_video_requested = true;
-                                        }
-                                    });
+                                    ui.add(
+                                        egui::Label::new(
+                                            egui::RichText::new(name).strong().monospace(),
+                                        )
+                                        .truncate(),
+                                    )
+                                    .on_hover_text(full_path);
+
+                                    if ui.button("Browse...").clicked() {
+                                        pick_video_requested = true;
+                                    }
 
                                     if let Some(ref meta) = self.meta {
+                                        ui.add_space(2.0);
                                         ui.label(
                                             egui::RichText::new(format!(
                                                 "📐 {}x{} • {:.1} fps • {:.2}s ({} frames)",
@@ -1120,16 +1129,16 @@ impl GuiApp {
 
                                     ui.add_space(6.0);
                                     ui.label(egui::RichText::new("Output Directory:").small());
-                                    ui.horizontal(|ui| {
-                                        let dir_str = self.output_dir.display().to_string();
-                                        ui.add(
-                                            egui::Label::new(egui::RichText::new(dir_str).monospace())
-                                                .truncate(),
-                                        );
-                                        if ui.button("Choose...").clicked() {
-                                            pick_output_dir_requested = true;
-                                        }
-                                    });
+                                    let dir_str = self.output_dir.display().to_string();
+                                    ui.add(
+                                        egui::Label::new(egui::RichText::new(&dir_str).monospace())
+                                            .truncate(),
+                                    )
+                                    .on_hover_text(&dir_str);
+
+                                    if ui.button("Choose...").clicked() {
+                                        pick_output_dir_requested = true;
+                                    }
 
                                     ui.add_space(4.0);
                                     ui.horizontal(|ui| {
@@ -1286,6 +1295,220 @@ impl GuiApp {
                                                         _ => {}
                                                     }
                                                 }
+
+                                                if !manifest.textures.is_empty() {
+                                                    ui.add_space(6.0);
+                                                    ui.separator();
+                                                    ui.label(egui::RichText::new("🖼 Textures").strong());
+
+                                                    for tex_def in &manifest.textures {
+                                                        let tex_entry = pass
+                                                            .textures
+                                                            .entry(tex_def.name.clone())
+                                                            .or_insert_with(|| {
+                                                                if let Some(ref def_p) = tex_def.default {
+                                                                    TextureInput::Path(def_p.clone())
+                                                                } else {
+                                                                    TextureInput::Generator(GeneratorConfig::default())
+                                                                }
+                                                            });
+
+                                                        ui.group(|ui| {
+                                                            ui.horizontal(|ui| {
+                                                                ui.label(egui::RichText::new(&tex_def.name).strong());
+
+                                                                let current_type = match tex_entry {
+                                                                    TextureInput::Path(_) => "📁 File",
+                                                                    TextureInput::Generator(g) => match g.generator {
+                                                                        GeneratorKind::Voronoi => "🌀 Voronoi",
+                                                                        GeneratorKind::Noise => "🌊 Noise / FBM",
+                                                                    },
+                                                                };
+
+                                                                egui::ComboBox::from_id_salt(format!("tex_type_{}_{}", pass_idx, tex_def.name))
+                                                                    .selected_text(current_type)
+                                                                    .show_ui(ui, |ui| {
+                                                                        if ui.selectable_label(matches!(tex_entry, TextureInput::Path(_)), "📁 File").clicked() {
+                                                                            *tex_entry = TextureInput::Path(tex_def.default.clone().unwrap_or_default());
+                                                                            trigger_rebuild_passes = true;
+                                                                        }
+                                                                        if ui.selectable_label(
+                                                                            matches!(tex_entry, TextureInput::Generator(g) if g.generator == GeneratorKind::Voronoi),
+                                                                            "🌀 Voronoi",
+                                                                        ).clicked() {
+                                                                            *tex_entry = TextureInput::Generator(GeneratorConfig {
+                                                                                generator: GeneratorKind::Voronoi,
+                                                                                ..Default::default()
+                                                                            });
+                                                                            trigger_rebuild_passes = true;
+                                                                        }
+                                                                        if ui.selectable_label(
+                                                                            matches!(tex_entry, TextureInput::Generator(g) if g.generator == GeneratorKind::Noise),
+                                                                            "🌊 Noise / FBM",
+                                                                        ).clicked() {
+                                                                            *tex_entry = TextureInput::Generator(GeneratorConfig {
+                                                                                generator: GeneratorKind::Noise,
+                                                                                ..Default::default()
+                                                                            });
+                                                                            trigger_rebuild_passes = true;
+                                                                        }
+                                                                    });
+                                                            });
+
+                                                            match tex_entry {
+                                                                TextureInput::Path(path_str) => {
+                                                                    ui.horizontal(|ui| {
+                                                                        let file_name = if path_str.is_empty() {
+                                                                            "No file selected".to_string()
+                                                                        } else {
+                                                                            Path::new(&path_str)
+                                                                                .file_name()
+                                                                                .map(|n| n.to_string_lossy().to_string())
+                                                                                .unwrap_or_else(|| path_str.clone())
+                                                                        };
+
+                                                                        ui.add(
+                                                                            egui::Label::new(
+                                                                                egui::RichText::new(&file_name).strong().monospace(),
+                                                                            )
+                                                                            .truncate(),
+                                                                        )
+                                                                        .on_hover_text(if path_str.is_empty() {
+                                                                            "No texture file selected"
+                                                                        } else {
+                                                                            path_str.as_str()
+                                                                        });
+
+                                                                        if !path_str.is_empty() {
+                                                                            if Path::new(&path_str).exists() {
+                                                                                ui.colored_label(egui::Color32::GREEN, "✓");
+                                                                            } else {
+                                                                                ui.colored_label(egui::Color32::RED, "✗");
+                                                                            }
+                                                                        }
+
+                                                                        if ui.button("Browse...").clicked() {
+                                                                            pick_texture_requested = Some((pass_idx, tex_def.name.clone()));
+                                                                        }
+                                                                    });
+                                                                }
+                                                                TextureInput::Generator(gen_cfg) => {
+                                                                    // Common: Seed & Roll
+                                                                    ui.horizontal(|ui| {
+                                                                        ui.label("Seed:");
+                                                                        if ui.add(egui::DragValue::new(&mut gen_cfg.seed)).changed() {
+                                                                            trigger_rebuild_passes = true;
+                                                                        }
+                                                                        if ui.button("🎲 Roll").clicked() {
+                                                                            gen_cfg.seed = std::time::SystemTime::now()
+                                                                                .duration_since(std::time::UNIX_EPOCH)
+                                                                                .map(|d| d.subsec_nanos() % 100000)
+                                                                                .unwrap_or(42);
+                                                                            trigger_rebuild_passes = true;
+                                                                        }
+                                                                    });
+
+                                                                    // Common: Scale
+                                                                    ui.horizontal(|ui| {
+                                                                        ui.label("Scale:");
+                                                                        if ui.add(egui::Slider::new(&mut gen_cfg.scale, 0.5..=64.0).step_by(0.5)).changed() {
+                                                                            trigger_rebuild_passes = true;
+                                                                        }
+                                                                    });
+
+                                                                    match gen_cfg.generator {
+                                                                        GeneratorKind::Voronoi => {
+                                                                            ui.horizontal(|ui| {
+                                                                                ui.label("Jitter:");
+                                                                                if ui.add(egui::Slider::new(&mut gen_cfg.jitter, 0.0..=1.0).step_by(0.05)).changed() {
+                                                                                    trigger_rebuild_passes = true;
+                                                                                }
+                                                                            });
+
+                                                                            ui.horizontal(|ui| {
+                                                                                ui.label("Mode:");
+                                                                                let mode_label = match gen_cfg.mode {
+                                                                                    GeneratorMode::Distance => "Distance (F1)",
+                                                                                    GeneratorMode::Borders => "Borders (F2 - F1)",
+                                                                                    GeneratorMode::Cells => "Cell Colors",
+                                                                                };
+                                                                                egui::ComboBox::from_id_salt(format!("vor_mode_{}_{}", pass_idx, tex_def.name))
+                                                                                    .selected_text(mode_label)
+                                                                                    .show_ui(ui, |ui| {
+                                                                                        if ui.selectable_label(gen_cfg.mode == GeneratorMode::Distance, "Distance (F1)").clicked() {
+                                                                                            gen_cfg.mode = GeneratorMode::Distance;
+                                                                                            trigger_rebuild_passes = true;
+                                                                                        }
+                                                                                        if ui.selectable_label(gen_cfg.mode == GeneratorMode::Borders, "Borders (F2 - F1)").clicked() {
+                                                                                            gen_cfg.mode = GeneratorMode::Borders;
+                                                                                            trigger_rebuild_passes = true;
+                                                                                        }
+                                                                                        if ui.selectable_label(gen_cfg.mode == GeneratorMode::Cells, "Cell Colors").clicked() {
+                                                                                            gen_cfg.mode = GeneratorMode::Cells;
+                                                                                            trigger_rebuild_passes = true;
+                                                                                        }
+                                                                                    });
+                                                                            });
+
+                                                                            ui.horizontal(|ui| {
+                                                                                ui.label("Metric:");
+                                                                                let metric_label = match gen_cfg.metric {
+                                                                                    DistanceMetric::Euclidean => "Euclidean",
+                                                                                    DistanceMetric::Manhattan => "Manhattan",
+                                                                                };
+                                                                                egui::ComboBox::from_id_salt(format!("vor_metric_{}_{}", pass_idx, tex_def.name))
+                                                                                    .selected_text(metric_label)
+                                                                                    .show_ui(ui, |ui| {
+                                                                                        if ui.selectable_label(gen_cfg.metric == DistanceMetric::Euclidean, "Euclidean").clicked() {
+                                                                                            gen_cfg.metric = DistanceMetric::Euclidean;
+                                                                                            trigger_rebuild_passes = true;
+                                                                                        }
+                                                                                        if ui.selectable_label(gen_cfg.metric == DistanceMetric::Manhattan, "Manhattan").clicked() {
+                                                                                            gen_cfg.metric = DistanceMetric::Manhattan;
+                                                                                            trigger_rebuild_passes = true;
+                                                                                        }
+                                                                                    });
+                                                                            });
+                                                                        }
+                                                                        GeneratorKind::Noise => {
+                                                                            ui.horizontal(|ui| {
+                                                                                ui.label("Octaves:");
+                                                                                if ui.add(egui::Slider::new(&mut gen_cfg.octaves, 1..=8)).changed() {
+                                                                                    trigger_rebuild_passes = true;
+                                                                                }
+                                                                            });
+                                                                            ui.horizontal(|ui| {
+                                                                                ui.label("Persistence:");
+                                                                                if ui.add(egui::Slider::new(&mut gen_cfg.persistence, 0.1..=1.0).step_by(0.05)).changed() {
+                                                                                    trigger_rebuild_passes = true;
+                                                                                }
+                                                                            });
+                                                                            ui.horizontal(|ui| {
+                                                                                ui.label("Lacunarity:");
+                                                                                if ui.add(egui::Slider::new(&mut gen_cfg.lacunarity, 1.0..=4.0).step_by(0.1)).changed() {
+                                                                                    trigger_rebuild_passes = true;
+                                                                                }
+                                                                            });
+                                                                        }
+                                                                    }
+
+                                                                    // Common: Animate & Speed
+                                                                    ui.horizontal(|ui| {
+                                                                        if ui.checkbox(&mut gen_cfg.animate, "Animate").changed() {
+                                                                            trigger_rebuild_passes = true;
+                                                                        }
+                                                                        if gen_cfg.animate {
+                                                                            ui.label("Speed:");
+                                                                            if ui.add(egui::Slider::new(&mut gen_cfg.speed, 0.1..=10.0).step_by(0.1)).changed() {
+                                                                                trigger_rebuild_passes = true;
+                                                                            }
+                                                                        }
+                                                                    });
+                                                                }
+                                                            }
+                                                        });
+                                                    }
+                                                }
                                             }
                                         });
                                     }
@@ -1433,6 +1656,23 @@ impl GuiApp {
         if pick_output_dir_requested {
             if let Some(dir) = rfd::FileDialog::new().pick_folder() {
                 self.output_dir = dir;
+            }
+        }
+
+        if let Some((p_idx, tex_name)) = pick_texture_requested {
+            if let Some(path) = rfd::FileDialog::new()
+                .add_filter("Image Files", &["png", "jpg", "jpeg"])
+                .pick_file()
+            {
+                if let Some(ref mut config) = self.active_pipeline_config {
+                    if let Some(pass) = config.passes.get_mut(p_idx) {
+                        pass.textures.insert(
+                            tex_name,
+                            TextureInput::Path(path.display().to_string()),
+                        );
+                        trigger_rebuild_passes = true;
+                    }
+                }
             }
         }
 

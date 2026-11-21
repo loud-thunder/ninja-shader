@@ -1,0 +1,52 @@
+name = "voronoi_cyber_cells"
+description = "Bio-cybernetic cellular overlay with procedural GPU Voronoi diagrams and neon split-toning"
+input = "test_input.mp4"
+output = "output_voronoi_cyber_cells.mp4"
+
+[settings]
+scale = 1.0
+crf = 18
+preset = "medium"
+copy_audio = true
+
+[[passes]]
+shader = "texture_overlay"
+enabled = true
+[passes.params]
+opacity = 0.65
+uv_scale = 1.0
+
+[passes.textures.overlay_tex]
+generator = "voronoi"
+seed = 777
+scale = 10.0
+jitter = 0.85
+mode = "borders"
+metric = "euclidean"
+animate = true
+speed = 0.8
+
+[[passes]]
+shader = "duotone_cyber"
+enabled = true
+[passes.params]
+contrast = 1.3
+mix_amount = 0.75
+shadow_color = [0.03, 0.05, 0.15]
+highlight_color = [0.0, 0.95, 0.85]
+
+[[passes]]
+shader = "bloom"
+enabled = true
+[passes.params]
+threshold = 0.55
+intensity = 0.8
+radius = 4.0
+
+[[passes]]
+shader = "vignette"
+enabled = true
+[passes.params]
+intensity = 0.85
+radius = 0.75
+softness = 0.45
