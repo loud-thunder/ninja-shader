@@ -25,6 +25,7 @@
 - ⏳ **Temporal Feedback & Motion Buffers**: Direct shader access to previous frame outputs (`prev_frame_tex`) and unmodified source video (`original_tex`), enabling analog datamosh, phosphor decay, and persistent echo trails.
 - 🌐 **Dual Language ABI (WGSL + GLSL)**: Write shaders in modern WebGPU Shading Language (`.wgsl`) or Vulkan GLSL (`.glsl`). Naga transparently compiles both to native Metal (macOS), Vulkan (Linux), or DirectX 12 (Windows).
 - 📦 **Declarative Sidecar Manifests**: Every shader is paired with a `<name>.toml` manifest specifying strongly typed uniform parameters (`float`, `int`, `vec2`, `vec3`, `vec4`, `color`), ranges, defaults, and custom auxiliary textures.
+- 🌀 **Procedural & Generative GPU Textures**: Native GPU generation for Voronoi cellular diagrams and Simplex/Perlin/FBM noise. Bind procedural textures to shaders like `texture_overlay` with full control over seeds, scale, jitter, metrics, modes, and time animation.
 - 🧰 **Complete Shader Toolchain**: Built-in CLI commands to scaffold new shaders, inspect parameter ABIs, discover available effects, and validate pipelines headlessly in CI/CD.
 
 ---
@@ -60,8 +61,8 @@ cargo run --release -- gui -i input.mp4 -p pipelines/retro_crt.toml
 
 ### Creator Workflow Highlights
 
-- **Live Recipe Hot-Swapping**: Select the pipeline list and press the **`↑` / `↓` arrow keys** to switch instantly between 32 included pipeline recipes while video plays seamlessly.
-- **Real-Time Parameter Tuning**: Drag sliders and color pickers for any active pass; uniform buffers re-pack and update on the GPU every frame.
+- **Live Recipe Hot-Swapping**: Select the pipeline list and press the **`↑` / `↓` arrow keys** to switch instantly between 33 included pipeline recipes while video plays seamlessly.
+- **Real-Time Parameter & Texture Tuning**: Drag sliders and color pickers for any active pass. For texture-enabled shaders (like `texture_overlay`), switch texture slots dynamically between `📁 File` (with a native "Browse..." file picker), `🌀 Voronoi` (with seed slider and "🎲 Roll" randomizer), or `🌊 Noise / FBM`.
 - **Non-Blocking Background Export**: Click **Render Video** to kick off an asynchronous background render. An animated progress bar tracks completion percentage, rendered frames, and export FPS without dropping preview framerates.
 - **Interactive Preview Controls**:
   - `Space` — Toggle Play / Pause
@@ -184,13 +185,14 @@ flowchart LR
 
 ---
 
-## 32 Turnkey Pipeline Recipes
+## 33 Turnkey Pipeline Recipes
 
-`ninja-shader` includes 32 production-ready recipes in `pipelines/` ready to run out of the box:
+`ninja-shader` includes 33 production-ready recipes in `pipelines/` ready to run out of the box:
 
 | Recipe File | Passes | Visual Aesthetic |
 | :--- | :---: | :--- |
 | `ultimate_cyberpunk.toml` | 6 | Duotone split → Neon edge → Hologram → Glitch → Bloom → Vignette |
+| `voronoi_cyber_cells.toml`| 4 | Procedural GPU Voronoi borders overlay → Duotone split → Bloom → Vignette |
 | `retro_crt.toml` | 5 | Chromatic aberration → CRT curvature/scanlines → Trails → Grain → Vignette |
 | `synthwave_outrun.toml` | 5 | Duotone → Perspective laser grid → Bloom glow → CRT scanlines → Vignette |
 | `matrix_terminal.toml` | 5 | Falling ASCII glyphs → Bloom → CRT scanlines → Motion trails → Vignette |
@@ -201,7 +203,7 @@ flowchart LR
 | `glitch_art_gallery.toml` | 4 | Pixel sort smearing → Macroblock corruption → RGB wave → Halftone dot matrix |
 | `noir_film.toml` | 4 | Rec. 709 black & white → Dirty texture overlay → Film grain → Deep vignette |
 
-*Explore all 32 recipes in [`pipelines/`](pipelines/).*
+*Explore all 33 recipes in [`pipelines/`](pipelines/).*
 
 ---
 
@@ -212,7 +214,8 @@ flowchart TD
     subgraph Ingest["1. Input & Demuxing"]
         VID["Input Video (.mp4 / .mov / .mkv)"] --> FFMPEG_DEC["FFmpeg Decoder (Pipe: Raw RGBA8)"]
         VID -.->|"Transparent Passthrough"| AUDIO["Preserved Audio Stream"]
-        AUX["Auxiliary Textures (PNG / JPEG)"] --> IMG_LOAD["image crate Loader"]
+        AUX["Image Files (PNG / JPEG)"] --> IMG_LOAD["image crate Loader"]
+        GEN["Procedural Generators (Voronoi / Noise)"] --> GEN_RENDER["GPU Offscreen Pass"]
     end
 
     subgraph GPU["2. wgpu Multi-Pass Render Loop"]
@@ -254,7 +257,33 @@ Every fragment shader automatically receives a standardized, zero-boilerplate ru
 
 #### Group 1: Custom Uniforms & Textures
 - `params` — Dynamically packed uniform struct matching declarations in `<name>.toml`
-- `custom_textures` — Any auxiliary images or lookup tables bound from the recipe
+- `custom_textures` — Any auxiliary images (PNG/JPEG) or GPU generative textures (Voronoi & Noise) bound from the recipe
+
+### Generative Textures (Voronoi & Noise)
+
+Any shader declaring auxiliary textures (like `texture_overlay`) can bind either a static image file or a procedural GPU-generated texture. In pipeline TOML recipes, define inline generator tables:
+
+```toml
+[[passes]]
+shader = "texture_overlay"
+enabled = true
+[passes.params]
+opacity = 0.65
+uv_scale = 1.0
+
+# Generative Voronoi texture configuration
+[passes.textures.overlay_tex]
+generator = "voronoi"
+seed = 777
+scale = 10.0
+jitter = 0.85
+mode = "borders"       # "distance" (F1) | "borders" (F2 - F1) | "cells" (Cell ID color)
+metric = "euclidean"   # "euclidean" | "manhattan"
+animate = true         # Evolve pattern over time
+speed = 0.8
+```
+
+Alternatively, to use an image file, pass a path string (`overlay_tex = "assets/pattern.png"`). In the Studio GUI, you can switch between `📁 File` (with a native "Browse..." file selector), `🌀 Voronoi` (with seed slider, "🎲 Roll" randomizer, mode, and metric controls), and `🌊 Noise / FBM` (with octave, persistence, and lacunarity sliders) in real time.
 
 ---
 
