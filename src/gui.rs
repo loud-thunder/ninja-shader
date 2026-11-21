@@ -1088,26 +1088,32 @@ impl GuiApp {
                                 .default_open(true)
                                 .show(ui, |ui| {
                                     ui.label(egui::RichText::new("Input Video:").small());
-                                    ui.horizontal(|ui| {
-                                        let name = self
-                                            .input_video_path
-                                            .as_ref()
-                                            .and_then(|p| p.file_name())
-                                            .map(|n| n.to_string_lossy().to_string())
-                                            .unwrap_or_else(|| "No video selected".into());
+                                    let name = self
+                                        .input_video_path
+                                        .as_ref()
+                                        .and_then(|p| p.file_name())
+                                        .map(|n| n.to_string_lossy().to_string())
+                                        .unwrap_or_else(|| "No video selected".into());
+                                    let full_path = self
+                                        .input_video_path
+                                        .as_ref()
+                                        .map(|p| p.display().to_string())
+                                        .unwrap_or_else(|| "No video selected".into());
 
-                                        ui.add(
-                                            egui::Label::new(
-                                                egui::RichText::new(name).strong().monospace(),
-                                            )
-                                            .truncate(),
-                                        );
-                                        if ui.button("Browse...").clicked() {
-                                            pick_video_requested = true;
-                                        }
-                                    });
+                                    ui.add(
+                                        egui::Label::new(
+                                            egui::RichText::new(name).strong().monospace(),
+                                        )
+                                        .truncate(),
+                                    )
+                                    .on_hover_text(full_path);
+
+                                    if ui.button("Browse...").clicked() {
+                                        pick_video_requested = true;
+                                    }
 
                                     if let Some(ref meta) = self.meta {
+                                        ui.add_space(2.0);
                                         ui.label(
                                             egui::RichText::new(format!(
                                                 "📐 {}x{} • {:.1} fps • {:.2}s ({} frames)",
@@ -1120,16 +1126,16 @@ impl GuiApp {
 
                                     ui.add_space(6.0);
                                     ui.label(egui::RichText::new("Output Directory:").small());
-                                    ui.horizontal(|ui| {
-                                        let dir_str = self.output_dir.display().to_string();
-                                        ui.add(
-                                            egui::Label::new(egui::RichText::new(dir_str).monospace())
-                                                .truncate(),
-                                        );
-                                        if ui.button("Choose...").clicked() {
-                                            pick_output_dir_requested = true;
-                                        }
-                                    });
+                                    let dir_str = self.output_dir.display().to_string();
+                                    ui.add(
+                                        egui::Label::new(egui::RichText::new(&dir_str).monospace())
+                                            .truncate(),
+                                    )
+                                    .on_hover_text(&dir_str);
+
+                                    if ui.button("Choose...").clicked() {
+                                        pick_output_dir_requested = true;
+                                    }
 
                                     ui.add_space(4.0);
                                     ui.horizontal(|ui| {
