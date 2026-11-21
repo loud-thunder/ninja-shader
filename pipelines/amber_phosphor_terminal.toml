@@ -1,0 +1,51 @@
+name = "amber_phosphor_terminal"
+description = "Vintage monochrome amber phosphor CRT terminal with long persistence decay, Bayer dither, and Trinitron phosphor mask"
+input = "test_input.mp4"
+output = "output_amber_phosphor_terminal.mp4"
+
+[settings]
+scale = 1.0
+crf = 18
+preset = "medium"
+copy_audio = true
+
+[[passes]]
+shader = "bayer_dither"
+enabled = true
+[passes.params]
+palette = 3
+spread = 0.30
+scale = 2.0
+blend = 1.0
+
+[[passes]]
+shader = "motion_trails"
+enabled = true
+[passes.params]
+decay = 0.40
+
+[[passes]]
+shader = "crt_phosphor_mask"
+enabled = true
+[passes.params]
+mask_type = 0
+scale = 2.0
+intensity = 0.50
+brightness_boost = 1.25
+
+[[passes]]
+shader = "crt_scanlines"
+enabled = true
+[passes.params]
+curvature = 0.10
+scanline_intensity = 0.35
+scanline_count = 350.0
+
+[[passes]]
+shader = "bloom"
+enabled = true
+[passes.params]
+threshold = 0.50
+intensity = 0.45
+radius = 1.5
+soft_knee = 0.2

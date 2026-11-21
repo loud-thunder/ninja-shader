@@ -1,0 +1,66 @@
+name = "cursed_vhs_tape"
+description = "Haunted analog horror magnetic videocassette with tape head-switching glitches, vertical frame roll, severe tracking breakdown, chromatic aberration, and vignette"
+input = "test_input.mp4"
+output = "output_cursed_vhs_tape.mp4"
+
+[settings]
+scale = 1.0
+crf = 18
+preset = "medium"
+copy_audio = true
+
+[[passes]]
+shader = "vhs_head_switch"
+enabled = true
+[passes.params]
+band_height = 0.05
+skew_amount = 0.045
+noise_intensity = 0.80
+flutter = 0.60
+position = 0
+intensity = 1.0
+
+[[passes]]
+shader = "tape_sync_roll"
+enabled = true
+[passes.params]
+roll_speed = 0.18
+sync_bar_width = 0.09
+sync_bar_noise = 0.70
+skew = 0.06
+tear_intensity = 0.05
+intensity = 0.85
+
+[[passes]]
+shader = "vhs_tracking"
+enabled = true
+[passes.params]
+bar_intensity = 0.55
+scroll_speed = 0.7
+head_switch_height = 0.02
+line_jitter = 0.005
+
+[[passes]]
+shader = "rf_static"
+enabled = true
+[passes.params]
+noise_intensity = 0.25
+hum_bar_intensity = 0.25
+hum_bar_speed = 0.5
+signal_loss = 0.04
+ghost_lag = 0.03
+ghost_opacity = 0.20
+
+[[passes]]
+shader = "chromatic_aberration"
+enabled = true
+[passes.params]
+amount = 0.007
+
+[[passes]]
+shader = "vignette"
+enabled = true
+[passes.params]
+intensity = 0.60
+radius = 0.78
+softness = 0.40

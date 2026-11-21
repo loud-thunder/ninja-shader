@@ -1,0 +1,35 @@
+name = "macintosh_1bit_classic"
+description = "1984 Apple Macintosh 1-bit high-contrast black-and-white bitmap display with 8x8 Bayer dithering and CRT framing"
+input = "test_input.mp4"
+output = "output_macintosh_1bit_classic.mp4"
+
+[settings]
+scale = 1.0
+crf = 18
+preset = "medium"
+copy_audio = true
+
+[[passes]]
+shader = "pixelate"
+enabled = true
+[passes.params]
+pixel_size = 2.0
+color_levels = 16.0
+grid_line = 0.0
+
+[[passes]]
+shader = "bayer_dither"
+enabled = true
+[passes.params]
+palette = 4
+spread = 0.40
+scale = 2.0
+blend = 1.0
+
+[[passes]]
+shader = "vignette"
+enabled = true
+[passes.params]
+intensity = 0.40
+radius = 0.85
+softness = 0.3

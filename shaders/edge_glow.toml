@@ -1,0 +1,35 @@
+name = "edge_glow"
+description = "3x3 Sobel edge detection with luminous colored contour glow"
+author = "ninja-shader"
+language = "wgsl"
+source = "edge_glow.wgsl"
+
+[[params]]
+name = "threshold"
+type = "float"
+default = 0.15
+min = 0.01
+max = 0.8
+description = "Luminance gradient sensitivity threshold"
+
+[[params]]
+name = "glow_intensity"
+type = "float"
+default = 1.5
+min = 0.0
+max = 3.0
+description = "Brightness of luminous edge contours"
+
+[[params]]
+name = "mix_source"
+type = "float"
+default = 0.7
+min = 0.0
+max = 1.0
+description = "Blend factor of original source video underneath edges"
+
+[[params]]
+name = "edge_color"
+type = "vec3"
+default = [0.0, 1.0, 0.8]
+description = "Color of the glowing edge contours"

@@ -1,0 +1,42 @@
+name = "acid_camo_matrix"
+description = "Multi-colored Voronoi cell mosaic quantized with posterization and retro scanlines"
+input = "test_input.mp4"
+output = "output_acid_camo_matrix.mp4"
+
+[settings]
+scale = 1.0
+crf = 18
+preset = "medium"
+copy_audio = true
+
+[[passes]]
+shader = "texture_overlay"
+enabled = true
+[passes.params]
+opacity = 0.45
+uv_scale = 1.0
+
+[passes.textures.overlay_tex]
+generator = "voronoi"
+seed = 2026
+scale = 8.0
+jitter = 1.0
+mode = "cells"
+metric = "euclidean"
+animate = false
+
+[[passes]]
+shader = "posterize"
+enabled = true
+[passes.params]
+levels = 5.0
+gamma = 1.1
+saturation = 1.35
+
+[[passes]]
+shader = "crt_scanlines"
+enabled = true
+[passes.params]
+curvature = 0.05
+scanline_intensity = 0.25
+scanline_count = 320.0

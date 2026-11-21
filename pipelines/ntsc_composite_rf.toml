@@ -1,0 +1,56 @@
+name = "ntsc_composite_rf"
+description = "Consumer RF modulated composite video through channel 3/4 with subcarrier phase drift, Y/C chroma smear, and CRT scanlines"
+input = "test_input.mp4"
+output = "output_ntsc_composite_rf.mp4"
+
+[settings]
+scale = 1.0
+crf = 18
+preset = "medium"
+copy_audio = true
+
+[[passes]]
+shader = "ntsc_artifact"
+enabled = true
+[passes.params]
+chroma_fringing = 0.60
+phase_shift = 0.20
+subcarrier_freq = 460.0
+chroma_delay = 0.006
+ringing = 0.35
+intensity = 0.90
+
+[[passes]]
+shader = "vhs_chroma_bleed"
+enabled = true
+[passes.params]
+bleed_distance = 0.015
+chroma_shift = 0.003
+saturation = 1.15
+
+[[passes]]
+shader = "rf_static"
+enabled = true
+[passes.params]
+noise_intensity = 0.15
+hum_bar_intensity = 0.18
+hum_bar_speed = 0.5
+signal_loss = 0.0
+ghost_lag = 0.015
+ghost_opacity = 0.12
+
+[[passes]]
+shader = "crt_scanlines"
+enabled = true
+[passes.params]
+curvature = 0.07
+scanline_intensity = 0.26
+scanline_count = 340.0
+
+[[passes]]
+shader = "vignette"
+enabled = true
+[passes.params]
+intensity = 0.32
+radius = 0.88
+softness = 0.35

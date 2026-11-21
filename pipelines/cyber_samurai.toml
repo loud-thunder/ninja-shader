@@ -1,0 +1,44 @@
+name = "cyber_samurai"
+description = "Anime combat visual style: high-contrast posterized shading, glowing neon crimson contours, and bloom"
+input = "test_input.mp4"
+output = "output_cyber_samurai.mp4"
+
+[settings]
+scale = 1.0
+crf = 18
+preset = "medium"
+copy_audio = true
+
+[[passes]]
+shader = "edge_glow"
+enabled = true
+[passes.params]
+threshold = 0.12
+glow_intensity = 1.75
+mix_source = 0.65
+edge_color = [1.0, 0.15, 0.45]
+
+[[passes]]
+shader = "posterize"
+enabled = true
+[passes.params]
+levels = 6.0
+gamma = 1.15
+saturation = 1.40
+
+[[passes]]
+shader = "duotone_cyber"
+enabled = true
+[passes.params]
+contrast = 1.25
+mix_amount = 0.60
+shadow_color = [0.05, 0.03, 0.15]
+highlight_color = [1.0, 0.85, 0.25]
+
+[[passes]]
+shader = "bloom"
+enabled = true
+[passes.params]
+threshold = 0.50
+intensity = 0.80
+radius = 3.5

@@ -1,0 +1,55 @@
+name = "vertical_roll_breakdown"
+description = "Analog cathode ray sync breakdown featuring slow rhythmic vertical frame roll, VBI blanking bar, horizontal head skew, and glitch slice displacements"
+input = "test_input.mp4"
+output = "output_vertical_roll_breakdown.mp4"
+
+[settings]
+scale = 1.0
+crf = 18
+preset = "medium"
+copy_audio = true
+
+[[passes]]
+shader = "tape_sync_roll"
+enabled = true
+[passes.params]
+roll_speed = 0.35
+sync_bar_width = 0.12
+sync_bar_noise = 0.70
+skew = 0.07
+tear_intensity = 0.05
+intensity = 1.0
+
+[[passes]]
+shader = "vhs_head_switch"
+enabled = true
+[passes.params]
+band_height = 0.04
+skew_amount = 0.03
+noise_intensity = 0.60
+flutter = 0.40
+position = 0
+intensity = 1.0
+
+[[passes]]
+shader = "glitch_displacement"
+enabled = true
+[passes.params]
+intensity = 0.035
+band_frequency = 10.0
+speed = 5.0
+color_drift = 0.015
+
+[[passes]]
+shader = "motion_trails"
+enabled = true
+[passes.params]
+decay = 0.30
+
+[[passes]]
+shader = "vignette"
+enabled = true
+[passes.params]
+intensity = 0.45
+radius = 0.85
+softness = 0.35

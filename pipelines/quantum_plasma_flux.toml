@@ -1,0 +1,51 @@
+name = "quantum_plasma_flux"
+description = "Fast-evolving procedural noise turbulence combined with Sabattier solarization and neon bloom"
+input = "test_input.mp4"
+output = "output_quantum_plasma_flux.mp4"
+
+[settings]
+scale = 1.0
+crf = 18
+preset = "medium"
+copy_audio = true
+
+[[passes]]
+shader = "texture_overlay"
+enabled = true
+[passes.params]
+opacity = 0.50
+uv_scale = 1.0
+
+[passes.textures.overlay_tex]
+generator = "noise"
+seed = 9911
+scale = 10.0
+octaves = 4
+persistence = 0.65
+lacunarity = 2.4
+animate = true
+speed = 2.5
+
+[[passes]]
+shader = "solarize"
+enabled = true
+[passes.params]
+threshold = 0.45
+intensity = 0.85
+mode = 1
+
+[[passes]]
+shader = "bloom"
+enabled = true
+[passes.params]
+threshold = 0.50
+intensity = 0.90
+radius = 4.0
+
+[[passes]]
+shader = "vignette"
+enabled = true
+[passes.params]
+intensity = 0.90
+radius = 0.70
+softness = 0.45

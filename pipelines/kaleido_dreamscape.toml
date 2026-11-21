@@ -1,0 +1,39 @@
+name = "kaleido_dreamscape"
+description = "Psychedelic optical dreamscape: rotating hexagonal kaleidoscope symmetry with cross-processed color saturation and bloom"
+input = "test_input.mp4"
+output = "output_kaleido_dreamscape.mp4"
+
+[settings]
+scale = 1.0
+crf = 18
+preset = "medium"
+copy_audio = true
+
+[[passes]]
+shader = "kaleido_prism"
+enabled = true
+[passes.params]
+segments = 6.0
+rotation_speed = 0.35
+
+[[passes]]
+shader = "cross_process"
+enabled = true
+[passes.params]
+strength = 0.75
+contrast = 1.20
+shift_balance = 0.20
+
+[[passes]]
+shader = "bloom"
+enabled = true
+[passes.params]
+threshold = 0.50
+intensity = 0.75
+radius = 3.5
+
+[[passes]]
+shader = "chromatic_aberration"
+enabled = true
+[passes.params]
+amount = 0.007

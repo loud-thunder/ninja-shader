@@ -1,0 +1,52 @@
+name = "cga_mode1_cyan_magenta"
+description = "Early 1980s IBM PC CGA Mode 1 320x200 graphics with black, cyan, magenta, and white Bayer dithering on CRT scanlines"
+input = "test_input.mp4"
+output = "output_cga_mode1_cyan_magenta.mp4"
+
+[settings]
+scale = 1.0
+crf = 18
+preset = "medium"
+copy_audio = true
+
+[[passes]]
+shader = "pixelate"
+enabled = true
+[passes.params]
+pixel_size = 3.0
+color_levels = 16.0
+grid_line = 0.0
+
+[[passes]]
+shader = "bayer_dither"
+enabled = true
+[passes.params]
+palette = 2
+spread = 0.35
+scale = 2.0
+blend = 1.0
+
+[[passes]]
+shader = "crt_scanlines"
+enabled = true
+[passes.params]
+curvature = 0.08
+scanline_intensity = 0.25
+scanline_count = 300.0
+
+[[passes]]
+shader = "bloom"
+enabled = true
+[passes.params]
+threshold = 0.65
+intensity = 0.35
+radius = 1.2
+soft_knee = 0.2
+
+[[passes]]
+shader = "vignette"
+enabled = true
+[passes.params]
+intensity = 0.40
+radius = 0.85
+softness = 0.35

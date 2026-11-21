@@ -1,0 +1,41 @@
+name = "pirate_radio_tv"
+description = "Underground pirate broadcast with horizontal displacement tearing, color bleed, and dirty scanlines"
+input = "test_input.mp4"
+output = "output_pirate_radio_tv.mp4"
+
+[settings]
+scale = 1.0
+crf = 18
+preset = "medium"
+copy_audio = true
+
+[[passes]]
+shader = "glitch_displacement"
+enabled = true
+[passes.params]
+intensity = 0.50
+band_frequency = 28.0
+speed = 4.0
+color_drift = 0.025
+
+[[passes]]
+shader = "vhs_chroma_bleed"
+enabled = true
+[passes.params]
+bleed_amount = 0.012
+
+[[passes]]
+shader = "crt_scanlines"
+enabled = true
+[passes.params]
+curvature = 0.10
+scanline_intensity = 0.38
+scanline_count = 360.0
+
+[[passes]]
+shader = "vignette"
+enabled = true
+[passes.params]
+intensity = 0.75
+radius = 0.78
+softness = 0.45

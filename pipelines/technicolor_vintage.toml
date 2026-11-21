@@ -1,0 +1,41 @@
+name = "technicolor_vintage"
+description = "Mid-century photochemical film look: warm cross-processing curves, subtle emulsion halation, and 35mm grain"
+input = "test_input.mp4"
+output = "output_technicolor_vintage.mp4"
+
+[settings]
+scale = 1.0
+crf = 18
+preset = "medium"
+copy_audio = true
+
+[[passes]]
+shader = "cross_process"
+enabled = true
+[passes.params]
+strength = 0.85
+contrast = 1.25
+shift_balance = 0.25
+
+[[passes]]
+shader = "halation"
+enabled = true
+[passes.params]
+intensity = 0.55
+threshold = 0.60
+radius = 3.2
+
+[[passes]]
+shader = "film_grain"
+enabled = true
+[passes.params]
+intensity = 0.07
+size = 1.1
+
+[[passes]]
+shader = "vignette"
+enabled = true
+[passes.params]
+intensity = 0.70
+radius = 0.80
+softness = 0.45

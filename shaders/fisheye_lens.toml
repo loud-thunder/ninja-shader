@@ -1,0 +1,29 @@
+name = "fisheye_lens"
+description = "Optical fisheye and pincushion lens distortion with focal length and edge vignette"
+author = "ninja-shader"
+language = "wgsl"
+source = "fisheye_lens.wgsl"
+
+[[params]]
+name = "distortion"
+type = "float"
+default = 0.35
+min = -1.0
+max = 1.0
+description = "Distortion curvature (>0 for barrel/fisheye, <0 for pincushion)"
+
+[[params]]
+name = "zoom"
+type = "float"
+default = 1.0
+min = 0.5
+max = 2.5
+description = "Scale factor to zoom in or crop circular black borders"
+
+[[params]]
+name = "edge_feather"
+type = "float"
+default = 0.05
+min = 0.0
+max = 0.5
+description = "Feathered falloff at lens boundary"

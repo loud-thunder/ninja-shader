@@ -1,0 +1,60 @@
+name = "low_power_broadcast_tv"
+description = "Fringe-area low-power television (LPTV) translator broadcast with weak signal attenuation, interlaced comb lines, and tape tracking static"
+input = "test_input.mp4"
+output = "output_low_power_broadcast_tv.mp4"
+
+[settings]
+scale = 1.0
+crf = 18
+preset = "medium"
+copy_audio = true
+
+[[passes]]
+shader = "rf_static"
+enabled = true
+[passes.params]
+noise_intensity = 0.35
+hum_bar_intensity = 0.30
+hum_bar_speed = 0.9
+signal_loss = 0.12
+ghost_lag = 0.04
+ghost_opacity = 0.25
+
+[[passes]]
+shader = "interlaced_scan"
+enabled = true
+[passes.params]
+field_order = 0
+line_thickness = 1.0
+comb_intensity = 0.50
+flicker = 0.22
+jitter = 0.003
+intensity = 0.80
+
+[[passes]]
+shader = "ntsc_artifact"
+enabled = true
+[passes.params]
+chroma_fringing = 0.45
+phase_shift = -0.15
+subcarrier_freq = 400.0
+chroma_delay = 0.007
+ringing = 0.25
+intensity = 0.80
+
+[[passes]]
+shader = "vhs_tracking"
+enabled = true
+[passes.params]
+bar_intensity = 0.45
+scroll_speed = 0.6
+head_switch_height = 0.03
+line_jitter = 0.004
+
+[[passes]]
+shader = "crt_scanlines"
+enabled = true
+[passes.params]
+curvature = 0.08
+scanline_intensity = 0.28
+scanline_count = 360.0

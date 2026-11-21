@@ -1,0 +1,51 @@
+name = "virtual_boy_monochrome"
+description = "1995 Virtual Boy oscillating mirror red-and-black LED display with Bayer dither, crimson duotone split, and motion trails"
+input = "test_input.mp4"
+output = "output_virtual_boy_monochrome.mp4"
+
+[settings]
+scale = 1.0
+crf = 18
+preset = "medium"
+copy_audio = true
+
+[[passes]]
+shader = "pixelate"
+enabled = true
+[passes.params]
+pixel_size = 3.0
+color_levels = 8.0
+grid_line = 0.0
+
+[[passes]]
+shader = "bayer_dither"
+enabled = true
+[passes.params]
+palette = 0
+levels = 4.0
+spread = 0.35
+scale = 2.0
+blend = 1.0
+
+[[passes]]
+shader = "duotone_cyber"
+enabled = true
+[passes.params]
+contrast = 1.4
+mix_amount = 1.0
+shadow_color = [0.02, 0.0, 0.0, 1.0]
+highlight_color = [1.0, 0.08, 0.05, 1.0]
+
+[[passes]]
+shader = "motion_trails"
+enabled = true
+[passes.params]
+decay = 0.35
+
+[[passes]]
+shader = "vignette"
+enabled = true
+[passes.params]
+intensity = 0.55
+radius = 0.80
+softness = 0.30

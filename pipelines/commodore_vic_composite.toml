@@ -1,0 +1,52 @@
+name = "commodore_vic_composite"
+description = "Commodore 64 / VIC-20 composite video output with NTSC color fringing, quantized color palette, CRT scanlines, and film grain"
+input = "test_input.mp4"
+output = "output_commodore_vic_composite.mp4"
+
+[settings]
+scale = 1.0
+crf = 18
+preset = "medium"
+copy_audio = true
+
+[[passes]]
+shader = "ntsc_artifact"
+enabled = true
+[passes.params]
+chroma_fringing = 0.65
+phase_shift = 0.10
+subcarrier_freq = 380.0
+chroma_delay = 0.005
+ringing = 0.35
+intensity = 0.90
+
+[[passes]]
+shader = "posterize"
+enabled = true
+[passes.params]
+levels = 8.0
+gamma = 1.1
+saturation = 1.15
+
+[[passes]]
+shader = "crt_scanlines"
+enabled = true
+[passes.params]
+curvature = 0.06
+scanline_intensity = 0.28
+scanline_count = 320.0
+
+[[passes]]
+shader = "film_grain"
+enabled = true
+[passes.params]
+intensity = 0.15
+size = 1.0
+
+[[passes]]
+shader = "vignette"
+enabled = true
+[passes.params]
+intensity = 0.35
+radius = 0.88
+softness = 0.35

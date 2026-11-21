@@ -1,0 +1,40 @@
+name = "solarized_inferno"
+description = "Surreal thermographic landscape: Sabattier tone inversion mapped across FLIR thermal infrared ironbow gradients"
+input = "test_input.mp4"
+output = "output_solarized_inferno.mp4"
+
+[settings]
+scale = 1.0
+crf = 18
+preset = "medium"
+copy_audio = true
+
+[[passes]]
+shader = "solarize"
+enabled = true
+[passes.params]
+threshold = 0.45
+intensity = 0.90
+mode = 1
+
+[[passes]]
+shader = "thermal_infrared"
+enabled = true
+[passes.params]
+intensity = 0.85
+
+[[passes]]
+shader = "bloom"
+enabled = true
+[passes.params]
+threshold = 0.45
+intensity = 0.85
+radius = 4.0
+
+[[passes]]
+shader = "vignette"
+enabled = true
+[passes.params]
+intensity = 0.85
+radius = 0.75
+softness = 0.45

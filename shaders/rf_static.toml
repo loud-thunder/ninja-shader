@@ -1,0 +1,53 @@
+name = "rf_static"
+description = "VHF/UHF television broadcast RF static snow, rolling AC hum bars, and antenna multipath ghosting"
+author = "ninja-shader"
+language = "wgsl"
+source = "rf_static.wgsl"
+
+[[params]]
+name = "noise_intensity"
+type = "float"
+default = 0.25
+min = 0.0
+max = 1.0
+description = "High-frequency RF white noise snow amplitude"
+
+[[params]]
+name = "hum_bar_intensity"
+type = "float"
+default = 0.25
+min = 0.0
+max = 1.0
+description = "Rolling 60Hz power-line hum interference band intensity"
+
+[[params]]
+name = "hum_bar_speed"
+type = "float"
+default = 0.8
+min = -5.0
+max = 5.0
+description = "Scroll speed of rolling hum bars"
+
+[[params]]
+name = "signal_loss"
+type = "float"
+default = 0.0
+min = 0.0
+max = 1.0
+description = "Attenuation/fading of video signal into pure broadcast snow"
+
+[[params]]
+name = "ghost_lag"
+type = "float"
+default = 0.02
+min = 0.0
+max = 0.1
+description = "Horizontal displacement of antenna multipath reflection ghost"
+
+[[params]]
+name = "ghost_opacity"
+type = "float"
+default = 0.15
+min = 0.0
+max = 0.5
+description = "Opacity of antenna multipath reflection ghost"

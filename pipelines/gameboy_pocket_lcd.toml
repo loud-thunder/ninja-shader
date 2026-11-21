@@ -1,0 +1,46 @@
+name = "gameboy_pocket_lcd"
+description = "1996 high-contrast silver FSTN LCD handheld screen with monochrome Bayer dithering, fine cell matrix, and film grain"
+input = "test_input.mp4"
+output = "output_gameboy_pocket_lcd.mp4"
+
+[settings]
+scale = 1.0
+crf = 18
+preset = "medium"
+copy_audio = true
+
+[[passes]]
+shader = "pixelate"
+enabled = true
+[passes.params]
+pixel_size = 4.0
+color_levels = 16.0
+grid_line = 0.0
+
+[[passes]]
+shader = "bayer_dither"
+enabled = true
+[passes.params]
+palette = 0
+levels = 4.0
+spread = 0.30
+scale = 2.0
+blend = 1.0
+
+[[passes]]
+shader = "lcd_matrix"
+enabled = true
+[passes.params]
+cell_size = 4.0
+grid_gap = 0.12
+ghosting = 0.25
+subpixel_type = 0
+brightness = 1.10
+intensity = 0.85
+
+[[passes]]
+shader = "film_grain"
+enabled = true
+[passes.params]
+intensity = 0.18
+size = 1.2

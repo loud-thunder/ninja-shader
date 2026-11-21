@@ -1,0 +1,53 @@
+name = "interlaced_scan"
+description = "Interlaced broadcast scanfields with motion comb artifacts and field cadence flicker"
+author = "ninja-shader"
+language = "wgsl"
+source = "interlaced_scan.wgsl"
+
+[[params]]
+name = "field_order"
+type = "int"
+default = 0
+min = 0
+max = 1
+description = "Field dominance (0: Even field first, 1: Odd field first)"
+
+[[params]]
+name = "line_thickness"
+type = "float"
+default = 1.0
+min = 1.0
+max = 4.0
+description = "Height of interlaced scanfield lines in screen pixels"
+
+[[params]]
+name = "comb_intensity"
+type = "float"
+default = 0.6
+min = 0.0
+max = 1.0
+description = "Motion comb tearing intensity between current and previous field buffers"
+
+[[params]]
+name = "flicker"
+type = "float"
+default = 0.2
+min = 0.0
+max = 1.0
+description = "Interlaced 60Hz/50Hz field flicker amplitude"
+
+[[params]]
+name = "jitter"
+type = "float"
+default = 0.001
+min = 0.0
+max = 0.008
+description = "Vertical micro-jitter jitter amplitude"
+
+[[params]]
+name = "intensity"
+type = "float"
+default = 0.8
+min = 0.0
+max = 1.0
+description = "Overall blend strength of interlaced scanning"

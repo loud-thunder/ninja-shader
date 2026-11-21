@@ -1,0 +1,41 @@
+name = "deep_space_probe"
+description = "Interplanetary probe telemetry monitor: night vision phosphor, radar sweep HUD, phosphor triad mask, and transmission glitch"
+input = "test_input.mp4"
+output = "output_deep_space_probe.mp4"
+
+[settings]
+scale = 1.0
+crf = 18
+preset = "medium"
+copy_audio = true
+
+[[passes]]
+shader = "night_vision"
+enabled = true
+[passes.params]
+gain = 1.4
+phosphor_color = [0.15, 0.95, 0.35]
+noise_amount = 0.18
+
+[[passes]]
+shader = "radar_hud"
+enabled = true
+[passes.params]
+sweep_speed = 0.8
+hud_color = [0.2, 1.0, 0.4]
+
+[[passes]]
+shader = "crt_phosphor_mask"
+enabled = true
+[passes.params]
+mask_type = 1
+scale = 3.0
+intensity = 0.55
+brightness_boost = 1.25
+
+[[passes]]
+shader = "digital_glitch"
+enabled = true
+[passes.params]
+intensity = 0.20
+speed = 2.0

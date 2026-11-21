@@ -1,0 +1,53 @@
+name = "lcd_matrix"
+description = "Simulates handheld LCD dot-matrix display cells with passive-matrix ghosting and grid borders"
+author = "ninja-shader"
+language = "wgsl"
+source = "lcd_matrix.wgsl"
+
+[[params]]
+name = "cell_size"
+type = "float"
+default = 4.0
+min = 1.0
+max = 20.0
+description = "LCD pixel cell size in screen pixels"
+
+[[params]]
+name = "grid_gap"
+type = "float"
+default = 0.15
+min = 0.0
+max = 0.45
+description = "Width of the inactive dark border gap between LCD cells"
+
+[[params]]
+name = "ghosting"
+type = "float"
+default = 0.45
+min = 0.0
+max = 0.9
+description = "Passive-matrix liquid crystal response decay (persistence from previous frame)"
+
+[[params]]
+name = "subpixel_type"
+type = "int"
+default = 0
+min = 0
+max = 2
+description = "Grid subpixel mode (0: Dark grid border, 1: Vintage olive reflective LCD, 2: RGB subpixel striping)"
+
+[[params]]
+name = "brightness"
+type = "float"
+default = 1.15
+min = 0.5
+max = 2.0
+description = "Backlight compensation brightness multiplier"
+
+[[params]]
+name = "intensity"
+type = "float"
+default = 0.85
+min = 0.0
+max = 1.0
+description = "Blend strength of the LCD screen effect"

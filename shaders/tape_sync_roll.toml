@@ -1,0 +1,53 @@
+name = "tape_sync_roll"
+description = "Vertical hold loss roll de-sync, vertical blanking interval bar, and tape skew tearing"
+author = "ninja-shader"
+language = "wgsl"
+source = "tape_sync_roll.wgsl"
+
+[[params]]
+name = "roll_speed"
+type = "float"
+default = 0.4
+min = -5.0
+max = 5.0
+description = "Vertical frame scroll speed caused by V-hold loss"
+
+[[params]]
+name = "sync_bar_width"
+type = "float"
+default = 0.08
+min = 0.01
+max = 0.25
+description = "Thickness of the vertical blanking interval (VBI) sync bar"
+
+[[params]]
+name = "sync_bar_noise"
+type = "float"
+default = 0.6
+min = 0.0
+max = 1.0
+description = "Intensity of static and sync pulse noise inside the VBI bar"
+
+[[params]]
+name = "skew"
+type = "float"
+default = 0.04
+min = -0.2
+max = 0.2
+description = "Horizontal shearing skew distortion adjacent to the sync bar"
+
+[[params]]
+name = "tear_intensity"
+type = "float"
+default = 0.03
+min = 0.0
+max = 0.15
+description = "Horizontal slice tearing displacement amplitude"
+
+[[params]]
+name = "intensity"
+type = "float"
+default = 1.0
+min = 0.0
+max = 1.0
+description = "Overall blend strength of vertical roll breakdown"

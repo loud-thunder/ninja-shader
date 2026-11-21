@@ -1,0 +1,65 @@
+name = "degraded_surveillance_tape"
+description = "Heavily overwritten convenience store time-lapse VCR surveillance tape with low resolution, head-switch jitter, interlacing, and RF snow"
+input = "test_input.mp4"
+output = "output_degraded_surveillance_tape.mp4"
+
+[settings]
+scale = 1.0
+crf = 18
+preset = "medium"
+copy_audio = true
+
+[[passes]]
+shader = "grayscale"
+enabled = true
+[passes.params]
+strength = 1.0
+
+[[passes]]
+shader = "pixelate"
+enabled = true
+[passes.params]
+pixel_size = 2.0
+color_levels = 16.0
+grid_line = 0.0
+
+[[passes]]
+shader = "vhs_head_switch"
+enabled = true
+[passes.params]
+band_height = 0.05
+skew_amount = 0.04
+noise_intensity = 0.70
+flutter = 0.45
+position = 0
+intensity = 1.0
+
+[[passes]]
+shader = "interlaced_scan"
+enabled = true
+[passes.params]
+field_order = 1
+line_thickness = 1.0
+comb_intensity = 0.50
+flicker = 0.25
+jitter = 0.003
+intensity = 0.80
+
+[[passes]]
+shader = "rf_static"
+enabled = true
+[passes.params]
+noise_intensity = 0.28
+hum_bar_intensity = 0.25
+hum_bar_speed = 0.5
+signal_loss = 0.04
+ghost_lag = 0.02
+ghost_opacity = 0.15
+
+[[passes]]
+shader = "vignette"
+enabled = true
+[passes.params]
+intensity = 0.55
+radius = 0.82
+softness = 0.35

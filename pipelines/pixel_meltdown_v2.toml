@@ -1,0 +1,41 @@
+name = "pixel_meltdown_v2"
+description = "Cascading GPU framebuffer breakdown: directional pixel sort smearing, displacement slice tearing, and block corruption"
+input = "test_input.mp4"
+output = "output_pixel_meltdown_v2.mp4"
+
+[settings]
+scale = 1.0
+crf = 18
+preset = "medium"
+copy_audio = true
+
+[[passes]]
+shader = "pixel_sort"
+enabled = true
+[passes.params]
+threshold = 0.45
+direction = 0.0
+
+[[passes]]
+shader = "glitch_displacement"
+enabled = true
+[passes.params]
+intensity = 0.45
+band_frequency = 24.0
+speed = 2.5
+color_drift = 0.03
+
+[[passes]]
+shader = "block_corrupt"
+enabled = true
+[passes.params]
+intensity = 0.22
+block_size = 18.0
+
+[[passes]]
+shader = "bloom"
+enabled = true
+[passes.params]
+threshold = 0.50
+intensity = 0.70
+radius = 3.5
