@@ -61,7 +61,7 @@ cargo run --release -- gui -i input.mp4 -p pipelines/retro_crt.toml
 
 ### Creator Workflow Highlights
 
-- **Live Recipe Hot-Swapping**: Select the pipeline list and press the **`↑` / `↓` arrow keys** to switch instantly between 33 included pipeline recipes while video plays seamlessly.
+- **Live Recipe Hot-Swapping**: Select the pipeline list and press the **`↑` / `↓` arrow keys** to switch instantly between 53 included pipeline recipes while video plays seamlessly.
 - **Real-Time Parameter & Texture Tuning**: Drag sliders and color pickers for any active pass. For texture-enabled shaders (like `texture_overlay`), switch texture slots dynamically between `📁 File` (with a native "Browse..." file picker), `🌀 Voronoi` (with seed slider and "🎲 Roll" randomizer), or `🌊 Noise / FBM`.
 - **Non-Blocking Background Export**: Click **Render Video** to kick off an asynchronous background render. An animated progress bar tracks completion percentage, rendered frames, and export FPS without dropping preview framerates.
 - **Interactive Preview Controls**:
@@ -141,12 +141,13 @@ flowchart LR
     P6 --> OUT[("Final Rendered Video<br/>(H.264 + Muxed Audio)")]
 ```
 
-### Curated Creative Effect Library (28 Built-In Shaders)
+### Curated Creative Effect Library (35 Built-In Shaders)
 
 #### 👾 1. Cyberpunk, Glitch & Datamosh
 | Shader | Lang | Description & Creative Applications |
 | :--- | :---: | :--- |
 | `digital_glitch` | WGSL | Scan-band slice tearing, random block displacement, and chroma shifts |
+| `glitch_displacement` | WGSL | Pseudo-random horizontal slice displacement bands with chromatic channel drift |
 | `datamosh` | WGSL | Macroblock motion-vector smearing and simulated I-frame drops via temporal buffer |
 | `pixel_sort` | WGSL | Directional luminance-threshold pixel sorting and streak smearing |
 | `rgb_wave` | WGSL | Sinusoidal and sawtooth horizontal wave distortion with phase-offset RGB channels |
@@ -156,6 +157,7 @@ flowchart LR
 | Shader | Lang | Description & Creative Applications |
 | :--- | :---: | :--- |
 | `bloom` | WGSL | Luminance bright-pass extraction with dual-ring Gaussian glow diffusion |
+| `edge_glow` | WGSL | 3×3 Sobel edge detection with luminous colored contour glow |
 | `neon_edge` | WGSL | 3×3 Sobel gradient edge detection rendered as vibrant, pulsing contours |
 | `synthwave_grid` | WGSL | Outrun-style perspective scrolling laser floor grid with horizon haze |
 | `duotone_cyber` | WGSL | Stylized split-toning mapping shadows and highlights across custom neon palettes |
@@ -173,6 +175,7 @@ flowchart LR
 #### 📺 4. Analog, CRT & Retro Cinema
 | Shader | Lang | Description & Creative Applications |
 | :--- | :---: | :--- |
+| `crt_phosphor_mask` | WGSL | CRT hardware RGB subpixel aperture grille (Trinitron striping) and shadow mask phosphors |
 | `vhs_chroma_bleed`| WGSL | YIQ/YUV color-space separation with low-pass horizontal chrominance smearing |
 | `crt_scanlines` | WGSL | CRT barrel screen curvature, phosphor scanlines, and vignette bezel |
 | `film_grain` | GLSL | Temporal hash-based 35mm film grain noise driven by frame counter & time |
@@ -182,6 +185,10 @@ flowchart LR
 #### 🛠️ 5. Cinematic Essentials & Utilities
 | Shader | Lang | Description & Creative Applications |
 | :--- | :---: | :--- |
+| `fisheye_lens` | WGSL | Optical fisheye and pincushion lens distortion with focal length and edge vignette |
+| `posterize` | WGSL | Color quantization into discrete posterized step bands with gamma and saturation |
+| `solarize` | WGSL | Sabattier photographic tone inversion creating metallic surreal highlights |
+| `cross_process` | WGSL | Chemical film cross-processing emulation with vivid contrast, cyan shadows, and warm highlights |
 | `chromatic_aberration` | GLSL | Radial optical lens prism splitting driven by configurable spread amount |
 | `motion_trails` | WGSL | Phosphor decay and ghosting persistence using `prev_frame_tex` feedback |
 | `texture_overlay` | WGSL | External image/film dirt pattern blending with adjustable opacity and UV scale |
@@ -193,14 +200,32 @@ flowchart LR
 
 ---
 
-## 33 Turnkey Pipeline Recipes
+## 53 Turnkey Pipeline Recipes
 
-`ninja-shader` includes 33 production-ready recipes in `pipelines/` ready to run out of the box:
+`ninja-shader` includes 53 production-ready recipes in `pipelines/` ready to run out of the box:
 
 | Recipe File | Passes | Visual Aesthetic |
 | :--- | :---: | :--- |
 | `ultimate_cyberpunk.toml` | 6 | Duotone split → Neon edge → Hologram → Glitch → Bloom → Vignette |
 | `voronoi_cyber_cells.toml`| 4 | Procedural GPU Voronoi borders overlay → Duotone split → Bloom → Vignette |
+| `trinitron_crt_deluxe.toml`| 5 | Fisheye curvature → CRT phosphor mask → CRT scanlines → Bloom → Vignette |
+| `bio_mesh_cellular.toml` | 4 | Manhattan Voronoi cellular lattice → Duotone cyber → Bloom → Vignette |
+| `liquid_noise_dream.toml` | 4 | Flowing FBM noise overlay → Chromatic aberration → Halation → Film grain |
+| `crystal_fracture.toml` | 4 | Voronoi borders → Luminous edge glow → Chromatic aberration → Vignette |
+| `acid_camo_matrix.toml` | 3 | Voronoi cell mosaic → Posterize color quantization → CRT scanlines |
+| `quantum_plasma_flux.toml`| 4 | High-speed noise turbulence → Solarize Sabattier → Bloom → Vignette |
+| `cyber_samurai.toml` | 4 | Edge glow → Posterize → Duotone cyber → Bloom |
+| `hyperspace_warp.toml` | 4 | Fisheye pincushion tunnel → Chromatic aberration → RGB wave → Bloom |
+| `matrix_overdrive.toml` | 4 | ASCII matrix rain → Glitch displacement slices → Neon edge → Bloom |
+| `technicolor_vintage.toml`| 4 | Chemical cross-process film → Halation scatter → Film grain → Vignette |
+| `pop_art_comic.toml` | 3 | Posterize banding → Halftone dot matrix → Inked edge glow |
+| `solarized_inferno.toml` | 4 | Solarize inversion → FLIR thermal heat map → Bloom → Vignette |
+| `kaleido_dreamscape.toml` | 4 | Hexagonal kaleidoscope prism → Cross process → Bloom → Chromatic aberration |
+| `fisheye_security_cam.toml`| 5 | Fisheye CCTV lens → Grayscale → CRT scanlines → Film grain → Vignette |
+| `90s_skate_camcorder.toml` | 5 | Death-lens fisheye → Chromatic aberration → Halation → VHS tracking → Grain |
+| `pirate_radio_tv.toml` | 4 | Glitch slice displacement → VHS chroma bleed → CRT scanlines → Vignette |
+| `deep_space_probe.toml` | 4 | Night vision phosphor → Radar sweep HUD → CRT phosphor mask → Glitch |
+| `noir_detective_fisheye.toml`| 4 | Curved peephole fisheye → Monochrome Rec. 709 → Film grain → Deep vignette |
 | `retro_crt.toml` | 5 | Chromatic aberration → CRT curvature/scanlines → Trails → Grain → Vignette |
 | `synthwave_outrun.toml` | 5 | Duotone → Perspective laser grid → Bloom glow → CRT scanlines → Vignette |
 | `matrix_terminal.toml` | 5 | Falling ASCII glyphs → Bloom → CRT scanlines → Motion trails → Vignette |
@@ -211,7 +236,7 @@ flowchart LR
 | `glitch_art_gallery.toml` | 4 | Pixel sort smearing → Macroblock corruption → RGB wave → Halftone dot matrix |
 | `noir_film.toml` | 4 | Rec. 709 black & white → Dirty texture overlay → Film grain → Deep vignette |
 
-*Explore all 33 recipes in [`pipelines/`](pipelines/).*
+*Explore all 53 recipes in [`pipelines/`](pipelines/).*
 
 ---
 

@@ -1,0 +1,52 @@
+name = "bio_mesh_cellular"
+description = "Pulsating Manhattan cellular lattice overlay with neon split-toning and ethereal bloom"
+input = "test_input.mp4"
+output = "output_bio_mesh_cellular.mp4"
+
+[settings]
+scale = 1.0
+crf = 18
+preset = "medium"
+copy_audio = true
+
+[[passes]]
+shader = "texture_overlay"
+enabled = true
+[passes.params]
+opacity = 0.60
+uv_scale = 1.0
+
+[passes.textures.overlay_tex]
+generator = "voronoi"
+seed = 1042
+scale = 14.0
+jitter = 0.95
+mode = "borders"
+metric = "manhattan"
+animate = true
+speed = 0.6
+
+[[passes]]
+shader = "duotone_cyber"
+enabled = true
+[passes.params]
+contrast = 1.25
+mix_amount = 0.80
+shadow_color = [0.02, 0.05, 0.18]
+highlight_color = [0.1, 0.9, 0.7]
+
+[[passes]]
+shader = "bloom"
+enabled = true
+[passes.params]
+threshold = 0.50
+intensity = 0.75
+radius = 3.5
+
+[[passes]]
+shader = "vignette"
+enabled = true
+[passes.params]
+intensity = 0.80
+radius = 0.70
+softness = 0.45

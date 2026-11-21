@@ -1,0 +1,40 @@
+name = "hyperspace_warp"
+description = "Interstellar lightspeed jump: optical pincushion tunnel distortion, intense chromatic dispersion, and RGB waves"
+input = "test_input.mp4"
+output = "output_hyperspace_warp.mp4"
+
+[settings]
+scale = 1.0
+crf = 18
+preset = "medium"
+copy_audio = true
+
+[[passes]]
+shader = "fisheye_lens"
+enabled = true
+[passes.params]
+distortion = -0.42
+zoom = 1.15
+edge_feather = 0.02
+
+[[passes]]
+shader = "chromatic_aberration"
+enabled = true
+[passes.params]
+amount = 0.016
+
+[[passes]]
+shader = "rgb_wave"
+enabled = true
+[passes.params]
+amplitude = 0.012
+frequency = 16.0
+speed = 3.5
+
+[[passes]]
+shader = "bloom"
+enabled = true
+[passes.params]
+threshold = 0.55
+intensity = 0.85
+radius = 4.0

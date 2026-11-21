@@ -1,0 +1,49 @@
+name = "crystal_fracture"
+description = "Shattered crystalline Voronoi borders highlighted with luminous edge glow and prism splitting"
+input = "test_input.mp4"
+output = "output_crystal_fracture.mp4"
+
+[settings]
+scale = 1.0
+crf = 18
+preset = "medium"
+copy_audio = true
+
+[[passes]]
+shader = "texture_overlay"
+enabled = true
+[passes.params]
+opacity = 0.55
+uv_scale = 1.0
+
+[passes.textures.overlay_tex]
+generator = "voronoi"
+seed = 4096
+scale = 16.0
+jitter = 0.85
+mode = "borders"
+metric = "euclidean"
+animate = false
+
+[[passes]]
+shader = "edge_glow"
+enabled = true
+[passes.params]
+threshold = 0.12
+glow_intensity = 1.4
+mix_source = 0.75
+edge_color = [0.2, 0.85, 1.0]
+
+[[passes]]
+shader = "chromatic_aberration"
+enabled = true
+[passes.params]
+amount = 0.007
+
+[[passes]]
+shader = "vignette"
+enabled = true
+[passes.params]
+intensity = 0.85
+radius = 0.75
+softness = 0.40

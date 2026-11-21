@@ -1,0 +1,51 @@
+name = "trinitron_crt_deluxe"
+description = "High-end Sony Trinitron aperture grille phosphor mask with tube curvature, bloom, and scanlines"
+input = "test_input.mp4"
+output = "output_trinitron_crt_deluxe.mp4"
+
+[settings]
+scale = 1.0
+crf = 18
+preset = "medium"
+copy_audio = true
+
+[[passes]]
+shader = "fisheye_lens"
+enabled = true
+[passes.params]
+distortion = 0.12
+zoom = 1.02
+edge_feather = 0.02
+
+[[passes]]
+shader = "crt_phosphor_mask"
+enabled = true
+[passes.params]
+mask_type = 0
+scale = 2.0
+intensity = 0.65
+brightness_boost = 1.35
+
+[[passes]]
+shader = "crt_scanlines"
+enabled = true
+[passes.params]
+curvature = 0.06
+scanline_intensity = 0.32
+scanline_count = 400.0
+
+[[passes]]
+shader = "bloom"
+enabled = true
+[passes.params]
+threshold = 0.55
+intensity = 0.50
+radius = 3.0
+
+[[passes]]
+shader = "vignette"
+enabled = true
+[passes.params]
+intensity = 0.75
+radius = 0.80
+softness = 0.40

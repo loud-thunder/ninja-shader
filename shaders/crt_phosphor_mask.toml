@@ -1,0 +1,37 @@
+name = "crt_phosphor_mask"
+description = "Simulates CRT hardware RGB subpixel aperture grille and shadow mask phosphors"
+author = "ninja-shader"
+language = "wgsl"
+source = "crt_phosphor_mask.wgsl"
+
+[[params]]
+name = "mask_type"
+type = "int"
+default = 0
+min = 0
+max = 1
+description = "Phosphor pattern type (0: Trinitron aperture grille, 1: Shadow mask dot triad)"
+
+[[params]]
+name = "scale"
+type = "float"
+default = 2.0
+min = 1.0
+max = 8.0
+description = "Subpixel phosphor triad size in screen pixels"
+
+[[params]]
+name = "intensity"
+type = "float"
+default = 0.65
+min = 0.0
+max = 1.0
+description = "Mask effect visibility blend strength"
+
+[[params]]
+name = "brightness_boost"
+type = "float"
+default = 1.3
+min = 1.0
+max = 2.0
+description = "Compensation gain for phosphor dark gaps"

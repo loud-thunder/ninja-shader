@@ -1,0 +1,47 @@
+name = "90s_skate_camcorder"
+description = "Classic 1990s skate video aesthetic: wide death-lens fisheye, chromatic fringing, tape tracking, and halation"
+input = "test_input.mp4"
+output = "output_90s_skate_camcorder.mp4"
+
+[settings]
+scale = 1.0
+crf = 18
+preset = "medium"
+copy_audio = true
+
+[[passes]]
+shader = "fisheye_lens"
+enabled = true
+[passes.params]
+distortion = 0.38
+zoom = 0.98
+edge_feather = 0.04
+
+[[passes]]
+shader = "chromatic_aberration"
+enabled = true
+[passes.params]
+amount = 0.010
+
+[[passes]]
+shader = "halation"
+enabled = true
+[passes.params]
+intensity = 0.65
+threshold = 0.55
+radius = 3.5
+
+[[passes]]
+shader = "vhs_tracking"
+enabled = true
+[passes.params]
+line_jitter = 0.003
+bar_intensity = 0.25
+head_skew = 0.03
+
+[[passes]]
+shader = "film_grain"
+enabled = true
+[passes.params]
+intensity = 0.09
+size = 1.2

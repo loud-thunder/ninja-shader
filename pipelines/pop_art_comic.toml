@@ -1,0 +1,34 @@
+name = "pop_art_comic"
+description = "Roy Lichtenstein pop-art print: primary color posterization, halftone Ben-Day screen dots, and inked contours"
+input = "test_input.mp4"
+output = "output_pop_art_comic.mp4"
+
+[settings]
+scale = 1.0
+crf = 18
+preset = "medium"
+copy_audio = true
+
+[[passes]]
+shader = "posterize"
+enabled = true
+[passes.params]
+levels = 5.0
+gamma = 1.10
+saturation = 1.50
+
+[[passes]]
+shader = "halftone_cyber"
+enabled = true
+[passes.params]
+dot_size = 4.0
+intensity = 0.65
+
+[[passes]]
+shader = "edge_glow"
+enabled = true
+[passes.params]
+threshold = 0.14
+glow_intensity = 0.90
+mix_source = 0.85
+edge_color = [0.02, 0.02, 0.05]

@@ -1,0 +1,47 @@
+name = "fisheye_security_cam"
+description = "Overhead 180-degree CCTV security camera with heavy barrel distortion, monochrome feed, and grain"
+input = "test_input.mp4"
+output = "output_fisheye_security_cam.mp4"
+
+[settings]
+scale = 1.0
+crf = 20
+preset = "medium"
+copy_audio = false
+
+[[passes]]
+shader = "fisheye_lens"
+enabled = true
+[passes.params]
+distortion = 0.48
+zoom = 0.95
+edge_feather = 0.08
+
+[[passes]]
+shader = "grayscale"
+enabled = true
+[passes.params]
+strength = 1.0
+
+[[passes]]
+shader = "crt_scanlines"
+enabled = true
+[passes.params]
+curvature = 0.0
+scanline_intensity = 0.22
+scanline_count = 280.0
+
+[[passes]]
+shader = "film_grain"
+enabled = true
+[passes.params]
+intensity = 0.16
+size = 1.4
+
+[[passes]]
+shader = "vignette"
+enabled = true
+[passes.params]
+intensity = 1.0
+radius = 0.65
+softness = 0.35

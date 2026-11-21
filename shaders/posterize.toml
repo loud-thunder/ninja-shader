@@ -1,0 +1,29 @@
+name = "posterize"
+description = "Quantizes color depth into discrete posterized bands with gamma and saturation control"
+author = "ninja-shader"
+language = "wgsl"
+source = "posterize.wgsl"
+
+[[params]]
+name = "levels"
+type = "float"
+default = 6.0
+min = 2.0
+max = 32.0
+description = "Number of quantization color levels per channel"
+
+[[params]]
+name = "gamma"
+type = "float"
+default = 1.0
+min = 0.5
+max = 2.5
+description = "Gamma curve applied before quantization to adjust highlight/shadow banding"
+
+[[params]]
+name = "saturation"
+type = "float"
+default = 1.2
+min = 0.0
+max = 2.5
+description = "Vibrancy and color saturation multiplier"

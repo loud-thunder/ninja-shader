@@ -1,0 +1,48 @@
+name = "liquid_noise_dream"
+description = "Flowing procedural FBM noise textures with optical prism chromatic aberration and film halation"
+input = "test_input.mp4"
+output = "output_liquid_noise_dream.mp4"
+
+[settings]
+scale = 1.0
+crf = 18
+preset = "medium"
+copy_audio = true
+
+[[passes]]
+shader = "texture_overlay"
+enabled = true
+[passes.params]
+opacity = 0.50
+uv_scale = 1.0
+
+[passes.textures.overlay_tex]
+generator = "noise"
+seed = 8821
+scale = 6.0
+octaves = 5
+persistence = 0.60
+lacunarity = 2.2
+animate = true
+speed = 1.2
+
+[[passes]]
+shader = "chromatic_aberration"
+enabled = true
+[passes.params]
+amount = 0.008
+
+[[passes]]
+shader = "halation"
+enabled = true
+[passes.params]
+intensity = 0.70
+threshold = 0.60
+radius = 4.0
+
+[[passes]]
+shader = "film_grain"
+enabled = true
+[passes.params]
+intensity = 0.08
+size = 1.2

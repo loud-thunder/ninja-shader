@@ -1,0 +1,40 @@
+name = "noir_detective_fisheye"
+description = "Neo-noir optical surveillance: wide curved peephole lens, high-contrast monochrome desaturation, and heavy grain"
+input = "test_input.mp4"
+output = "output_noir_detective_fisheye.mp4"
+
+[settings]
+scale = 1.0
+crf = 18
+preset = "medium"
+copy_audio = true
+
+[[passes]]
+shader = "fisheye_lens"
+enabled = true
+[passes.params]
+distortion = 0.28
+zoom = 1.0
+edge_feather = 0.04
+
+[[passes]]
+shader = "grayscale"
+enabled = true
+[passes.params]
+strength = 1.0
+
+[[passes]]
+shader = "film_grain"
+enabled = true
+[passes.params]
+intensity = 0.14
+size = 1.4
+
+[[passes]]
+shader = "vignette"
+enabled = true
+[passes.params]
+intensity = 1.0
+radius = 0.65
+softness = 0.40
+tint = [0.01, 0.01, 0.02]

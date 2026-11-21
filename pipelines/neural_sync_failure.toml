@@ -1,0 +1,40 @@
+name = "neural_sync_failure"
+description = "Cortical cyberware malfunction: volumetric hologram jitter, metallic tone inversion, and sinusoidal wave distortion"
+input = "test_input.mp4"
+output = "output_neural_sync_failure.mp4"
+
+[settings]
+scale = 1.0
+crf = 18
+preset = "medium"
+copy_audio = true
+
+[[passes]]
+shader = "hologram"
+enabled = true
+[passes.params]
+jitter = 0.02
+flicker_speed = 4.0
+scanline_density = 160.0
+
+[[passes]]
+shader = "solarize"
+enabled = true
+[passes.params]
+threshold = 0.50
+intensity = 0.70
+mode = 0
+
+[[passes]]
+shader = "rgb_wave"
+enabled = true
+[passes.params]
+amplitude = 0.009
+frequency = 18.0
+speed = 2.5
+
+[[passes]]
+shader = "chromatic_aberration"
+enabled = true
+[passes.params]
+amount = 0.008

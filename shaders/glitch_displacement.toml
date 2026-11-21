@@ -1,0 +1,37 @@
+name = "glitch_displacement"
+description = "Pseudo-random horizontal block slice displacement with chromatic channel drift"
+author = "ninja-shader"
+language = "wgsl"
+source = "glitch_displacement.wgsl"
+
+[[params]]
+name = "intensity"
+type = "float"
+default = 0.45
+min = 0.0
+max = 1.0
+description = "Probability and displacement distance of glitch bands"
+
+[[params]]
+name = "band_frequency"
+type = "float"
+default = 24.0
+min = 2.0
+max = 80.0
+description = "Vertical density of slice bands across the screen"
+
+[[params]]
+name = "speed"
+type = "float"
+default = 3.0
+min = 0.1
+max = 15.0
+description = "Glitch band update and jitter frequency"
+
+[[params]]
+name = "color_drift"
+type = "float"
+default = 0.02
+min = 0.0
+max = 0.1
+description = "Chromatic RGB separation on displaced slices"
