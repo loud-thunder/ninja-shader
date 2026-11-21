@@ -213,3 +213,123 @@ fn test_all_pipelines_compile_and_render_headless() {
         assert_eq!(out1.len(), (width * height * 4) as usize);
     }
 }
+
+#[test]
+fn test_generative_textures_voronoi_and_noise() {
+    use ninja_shader::pipeline_config::{
+        DistanceMetric, GeneratorConfig, GeneratorKind, GeneratorMode, PassConfig, TextureInput,
+    };
+    use std::collections::HashMap;
+
+    let shader_dirs = vec![PathBuf::from("shaders")];
+    let width = 64u32;
+    let height = 64u32;
+    let frame_rgba = vec![200u8; (width * height * 4) as usize];
+
+    // Test matrix of generative configurations
+    let test_configs = vec![
+        // Voronoi Borders (Euclidean)
+        GeneratorConfig {
+            generator: GeneratorKind::Voronoi,
+            seed: 42,
+            scale: 8.0,
+            jitter: 0.9,
+            mode: GeneratorMode::Borders,
+            metric: DistanceMetric::Euclidean,
+            animate: false,
+            ..Default::default()
+        },
+        // Voronoi Distance (Manhattan)
+        GeneratorConfig {
+            generator: GeneratorKind::Voronoi,
+            seed: 999,
+            scale: 12.0,
+            jitter: 0.5,
+            mode: GeneratorMode::Distance,
+            metric: DistanceMetric::Manhattan,
+            animate: true,
+            speed: 1.5,
+            ..Default::default()
+        },
+        // Voronoi Cells (Cell ID color)
+        GeneratorConfig {
+            generator: GeneratorKind::Voronoi,
+            seed: 12345,
+            scale: 6.0,
+            jitter: 1.0,
+            mode: GeneratorMode::Cells,
+            metric: DistanceMetric::Euclidean,
+            animate: false,
+            ..Default::default()
+        },
+        // Noise / FBM
+        GeneratorConfig {
+            generator: GeneratorKind::Noise,
+            seed: 31415,
+            scale: 10.0,
+            octaves: 4,
+            persistence: 0.5,
+            lacunarity: 2.0,
+            animate: true,
+            speed: 2.0,
+            ..Default::default()
+        },
+    ];
+
+    for (idx, gen_config) in test_configs.into_iter().enumerate() {
+        let mut textures = HashMap::new();
+        textures.insert("overlay_tex".to_string(), TextureInput::Generator(gen_config));
+
+        let mut params = HashMap::new();
+        params.insert("opacity".to_string(), toml::Value::Float(0.8));
+        params.insert("uv_scale".to_string(), toml::Value::Float(1.0));
+
+        let pipeline = PipelineConfig {
+            name: format!("gen_test_{}", idx),
+            description: None,
+            input: None,
+            output: None,
+            settings: Default::default(),
+            passes: vec![PassConfig {
+                shader: "texture_overlay".to_string(),
+                enabled: true,
+                params,
+                textures,
+            }],
+            config_path: PathBuf::from("."),
+        };
+
+        let engine = pollster::block_on(GpuEngine::new_headless(
+            width,
+            height,
+            &pipeline,
+            &shader_dirs,
+        ))
+        .unwrap_or_else(|e| panic!("Failed to build GpuEngine for gen test {}: {:?}", idx, e));
+
+        engine.upload_source_frame(&frame_rgba);
+        engine.update_globals(0, 30.0);
+
+        let mut encoder = engine.device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
+            label: Some("test_gen_encoder"),
+        });
+        let final_tex = engine.render_frame(&mut encoder);
+        engine.queue.submit(Some(encoder.finish()));
+
+        let mut out = Vec::new();
+        engine
+            .readback_frame(final_tex, &mut out)
+            .unwrap_or_else(|e| panic!("Readback failed for gen test {}: {:?}", idx, e));
+
+        assert_eq!(out.len(), (width * height * 4) as usize);
+
+        // Verify that the output has varied pixels (not blank/uniform 0)
+        let first_pixel = &out[0..4];
+        let has_variation = out.chunks(4).any(|p| p != first_pixel);
+        assert!(
+            has_variation,
+            "Expected generative texture pass {} to produce varied pixel output",
+            idx
+        );
+    }
+}

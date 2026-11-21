@@ -2,7 +2,7 @@ use crate::manifest::{ShaderLanguage, ShaderManifest};
 use anyhow::{Context, Result};
 use std::borrow::Cow;
 
-const FULLSCREEN_VERTEX_WGSL: &str = r#"
+pub const FULLSCREEN_VERTEX_WGSL: &str = r#"
 struct VertexOutput {
     @builtin(position) position: vec4<f32>,
     @location(0) uv: vec2<f32>,

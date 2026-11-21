@@ -1,7 +1,8 @@
 use crate::gpu::compiler::ShaderCompiler;
+use crate::gpu::generators::GpuTextureGeneratorManager;
 use crate::gpu::types::GlobalsUniform;
 use crate::manifest::{AddressMode, ShaderLanguage, ShaderManifest, TextureFilter};
-use crate::pipeline_config::PipelineConfig;
+use crate::pipeline_config::{PipelineConfig, TextureInput};
 use anyhow::{bail, Context, Result};
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
@@ -11,6 +12,7 @@ pub struct PassInstance {
     pub pipeline: wgpu::RenderPipeline,
     pub bind_group_1: wgpu::BindGroup,
     pub enabled: bool,
+    pub loaded_textures: Vec<wgpu::Texture>,
 }
 
 pub struct GpuEngine {
@@ -54,6 +56,9 @@ pub struct GpuEngine {
 
     // Passes
     pub passes: Vec<PassInstance>,
+
+    // Generative texture manager
+    pub generator_manager: GpuTextureGeneratorManager,
 }
 
 impl GpuEngine {
@@ -287,6 +292,8 @@ impl GpuEngine {
         let bg0_from_ping = create_bg0(&ping_view);
         let bg0_from_pong = create_bg0(&pong_view);
 
+        let generator_manager = GpuTextureGeneratorManager::new(&device)?;
+
         let mut engine = Self {
             instance,
             adapter,
@@ -312,6 +319,7 @@ impl GpuEngine {
             bg0_from_ping,
             bg0_from_pong,
             passes: Vec::new(),
+            generator_manager,
         };
 
         engine.build_passes(pipeline_config, shader_dirs)?;
@@ -323,6 +331,7 @@ impl GpuEngine {
         pipeline_config: &PipelineConfig,
         shader_dirs: &[PathBuf],
     ) -> Result<()> {
+        self.generator_manager.clear_animated();
         let mut pass_instances = Vec::new();
 
         for pass in &pipeline_config.passes {
@@ -331,7 +340,7 @@ impl GpuEngine {
             let fs_module = ShaderCompiler::compile_fragment_shader(&self.device, &manifest)?;
 
             // Build Group 1 layout and bind group
-            let (bg1_layout, bg1) = self.create_pass_group1(&manifest, pass)?;
+            let (bg1_layout, bg1, loaded_textures) = self.create_pass_group1(&manifest, pass)?;
 
             let pipeline_layout = self.device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
                 label: Some(&format!("pipeline_layout_{}", pass.shader)),
@@ -386,6 +395,7 @@ impl GpuEngine {
                 pipeline: render_pipeline,
                 bind_group_1: bg1,
                 enabled: pass.enabled,
+                loaded_textures,
             });
         }
 
@@ -394,10 +404,10 @@ impl GpuEngine {
     }
 
     fn create_pass_group1(
-        &self,
+        &mut self,
         manifest: &ShaderManifest,
         pass: &crate::pipeline_config::PassConfig,
-    ) -> Result<(wgpu::BindGroupLayout, wgpu::BindGroup)> {
+    ) -> Result<(wgpu::BindGroupLayout, wgpu::BindGroup, Vec<wgpu::Texture>)> {
         let packed_params = manifest.pack_params(&pass.params)?;
 
         let params_buffer = self.device.create_buffer(&wgpu::BufferDescriptor {
@@ -436,18 +446,28 @@ impl GpuEngine {
                 count: None,
             });
 
-            // Find texture path override or default
-            let tex_path_str = pass
-                .textures
-                .get(&tex_def.name)
-                .cloned()
-                .or_else(|| tex_def.default.clone());
+            let tex_input = pass.textures.get(&tex_def.name);
 
-            let (tex, view) = if let Some(p) = tex_path_str {
-                self.load_aux_texture(Path::new(&p), tex_def.filter, tex_def.address_mode)?
-            } else {
-                // 1x1 white default texture
-                self.create_dummy_texture()?
+            let (tex, view) = match tex_input {
+                Some(TextureInput::Generator(gen_cfg)) => {
+                    self.generator_manager.generate_texture(
+                        &self.device,
+                        &self.queue,
+                        gen_cfg,
+                        self.width,
+                        self.height,
+                    )?
+                }
+                Some(TextureInput::Path(p)) => {
+                    self.load_aux_texture(Path::new(p), tex_def.filter, tex_def.address_mode)?
+                }
+                None => {
+                    if let Some(ref default_p) = tex_def.default {
+                        self.load_aux_texture(Path::new(default_p), tex_def.filter, tex_def.address_mode)?
+                    } else {
+                        self.create_dummy_texture()?
+                    }
+                }
             };
 
             loaded_textures.push(tex);
@@ -477,7 +497,7 @@ impl GpuEngine {
             entries: &bg_entries,
         });
 
-        Ok((bg_layout, bind_group))
+        Ok((bg_layout, bind_group, loaded_textures))
     }
 
     fn create_dummy_texture(&self) -> Result<(wgpu::Texture, wgpu::TextureView)> {
@@ -598,6 +618,8 @@ impl GpuEngine {
         let globals = GlobalsUniform::new(self.width, self.height, frame, fps);
         self.queue
             .write_buffer(&self.globals_buffer, 0, bytemuck::bytes_of(&globals));
+        self.generator_manager
+            .render_animated(&self.device, &self.queue, globals.time);
     }
 
     /// Renders the sequential passes. Returns a reference to the texture holding the final rendered output.
