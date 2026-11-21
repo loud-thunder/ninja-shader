@@ -1057,6 +1057,7 @@ impl GuiApp {
         let mut new_pipeline_to_load = None;
         let mut pick_video_requested = false;
         let mut pick_output_dir_requested = false;
+        let mut pick_texture_requested: Option<(usize, String)> = None;
         let mut trigger_start_render = false;
         let mut trigger_cancel_render = false;
         let mut trigger_restart = false;
@@ -1357,14 +1358,37 @@ impl GuiApp {
                                                             match tex_entry {
                                                                 TextureInput::Path(path_str) => {
                                                                     ui.horizontal(|ui| {
-                                                                        ui.label("Path:");
-                                                                        if ui.text_edit_singleline(path_str).changed() {
-                                                                            trigger_rebuild_passes = true;
-                                                                        }
-                                                                        if Path::new(&path_str).exists() {
-                                                                            ui.colored_label(egui::Color32::GREEN, "✓");
+                                                                        let file_name = if path_str.is_empty() {
+                                                                            "No file selected".to_string()
                                                                         } else {
-                                                                            ui.colored_label(egui::Color32::RED, "✗");
+                                                                            Path::new(&path_str)
+                                                                                .file_name()
+                                                                                .map(|n| n.to_string_lossy().to_string())
+                                                                                .unwrap_or_else(|| path_str.clone())
+                                                                        };
+
+                                                                        ui.add(
+                                                                            egui::Label::new(
+                                                                                egui::RichText::new(&file_name).strong().monospace(),
+                                                                            )
+                                                                            .truncate(),
+                                                                        )
+                                                                        .on_hover_text(if path_str.is_empty() {
+                                                                            "No texture file selected"
+                                                                        } else {
+                                                                            path_str.as_str()
+                                                                        });
+
+                                                                        if !path_str.is_empty() {
+                                                                            if Path::new(&path_str).exists() {
+                                                                                ui.colored_label(egui::Color32::GREEN, "✓");
+                                                                            } else {
+                                                                                ui.colored_label(egui::Color32::RED, "✗");
+                                                                            }
+                                                                        }
+
+                                                                        if ui.button("Browse...").clicked() {
+                                                                            pick_texture_requested = Some((pass_idx, tex_def.name.clone()));
                                                                         }
                                                                     });
                                                                 }
@@ -1632,6 +1656,23 @@ impl GuiApp {
         if pick_output_dir_requested {
             if let Some(dir) = rfd::FileDialog::new().pick_folder() {
                 self.output_dir = dir;
+            }
+        }
+
+        if let Some((p_idx, tex_name)) = pick_texture_requested {
+            if let Some(path) = rfd::FileDialog::new()
+                .add_filter("Image Files", &["png", "jpg", "jpeg"])
+                .pick_file()
+            {
+                if let Some(ref mut config) = self.active_pipeline_config {
+                    if let Some(pass) = config.passes.get_mut(p_idx) {
+                        pass.textures.insert(
+                            tex_name,
+                            TextureInput::Path(path.display().to_string()),
+                        );
+                        trigger_rebuild_passes = true;
+                    }
+                }
             }
         }
 
