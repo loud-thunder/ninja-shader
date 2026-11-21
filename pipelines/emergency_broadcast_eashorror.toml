@@ -1,0 +1,70 @@
+name = "emergency_broadcast_eashorror"
+description = "Emergency Alert System (EAS) broadcast interrupt with harsh interlaced field comb, RF carrier snow, composite NTSC fringing, and CRT screen curvature"
+input = "test_input.mp4"
+output = "output_emergency_broadcast_eashorror.mp4"
+
+[settings]
+scale = 1.0
+crf = 18
+preset = "medium"
+copy_audio = true
+
+[[passes]]
+shader = "interlaced_scan"
+enabled = true
+[passes.params]
+field_order = 0
+line_thickness = 1.0
+comb_intensity = 0.60
+flicker = 0.35
+jitter = 0.002
+intensity = 0.85
+
+[[passes]]
+shader = "rf_static"
+enabled = true
+[passes.params]
+noise_intensity = 0.25
+hum_bar_intensity = 0.30
+hum_bar_speed = 0.8
+signal_loss = 0.05
+ghost_lag = 0.03
+ghost_opacity = 0.18
+
+[[passes]]
+shader = "ntsc_artifact"
+enabled = true
+[passes.params]
+chroma_fringing = 0.65
+phase_shift = 0.30
+subcarrier_freq = 460.0
+chroma_delay = 0.006
+ringing = 0.35
+intensity = 0.85
+
+[[passes]]
+shader = "tape_sync_roll"
+enabled = true
+[passes.params]
+roll_speed = 0.10
+sync_bar_width = 0.05
+sync_bar_noise = 0.50
+skew = 0.03
+tear_intensity = 0.02
+intensity = 0.70
+
+[[passes]]
+shader = "crt_scanlines"
+enabled = true
+[passes.params]
+curvature = 0.10
+scanline_intensity = 0.32
+scanline_count = 380.0
+
+[[passes]]
+shader = "vignette"
+enabled = true
+[passes.params]
+intensity = 0.50
+radius = 0.80
+softness = 0.35

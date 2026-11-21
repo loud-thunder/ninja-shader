@@ -1,0 +1,54 @@
+name = "vcr_pause_jitter"
+description = "VCR 4-head still-frame freeze jitter with bottom head switching noise, interlaced field alternation flicker, tracking bar, and film grain"
+input = "test_input.mp4"
+output = "output_vcr_pause_jitter.mp4"
+
+[settings]
+scale = 1.0
+crf = 18
+preset = "medium"
+copy_audio = true
+
+[[passes]]
+shader = "vhs_head_switch"
+enabled = true
+[passes.params]
+band_height = 0.04
+skew_amount = 0.03
+noise_intensity = 0.65
+flutter = 0.45
+position = 0
+intensity = 1.0
+
+[[passes]]
+shader = "interlaced_scan"
+enabled = true
+[passes.params]
+field_order = 0
+line_thickness = 1.0
+comb_intensity = 0.40
+flicker = 0.45
+jitter = 0.004
+intensity = 0.90
+
+[[passes]]
+shader = "vhs_tracking"
+enabled = true
+[passes.params]
+bar_intensity = 0.40
+scroll_speed = 0.1
+head_switch_height = 0.02
+line_jitter = 0.003
+
+[[passes]]
+shader = "motion_trails"
+enabled = true
+[passes.params]
+decay = 0.35
+
+[[passes]]
+shader = "film_grain"
+enabled = true
+[passes.params]
+intensity = 0.20
+size = 1.1

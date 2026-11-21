@@ -1,0 +1,53 @@
+name = "ntsc_artifact"
+description = "NTSC composite video artifacts: color subcarrier cross-talk fringing, phase shift, and Y/C delay"
+author = "ninja-shader"
+language = "wgsl"
+source = "ntsc_artifact.wgsl"
+
+[[params]]
+name = "chroma_fringing"
+type = "float"
+default = 0.55
+min = 0.0
+max = 1.0
+description = "Rainbow color fringing (cross-color) on high-contrast vertical luma edges"
+
+[[params]]
+name = "phase_shift"
+type = "float"
+default = 0.12
+min = -1.0
+max = 1.0
+description = "NTSC color burst subcarrier phase rotation (tint error)"
+
+[[params]]
+name = "subcarrier_freq"
+type = "float"
+default = 450.0
+min = 100.0
+max = 1200.0
+description = "Composite 3.58MHz subcarrier spatial frequency"
+
+[[params]]
+name = "chroma_delay"
+type = "float"
+default = 0.004
+min = 0.0
+max = 0.02
+description = "Horizontal Y/C delay chroma smearing distance"
+
+[[params]]
+name = "ringing"
+type = "float"
+default = 0.25
+min = 0.0
+max = 1.0
+description = "Composite luminance overshoot and ringing on sharp edges"
+
+[[params]]
+name = "intensity"
+type = "float"
+default = 0.85
+min = 0.0
+max = 1.0
+description = "Overall blend strength of NTSC composite artifact"

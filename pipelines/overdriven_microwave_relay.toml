@@ -1,0 +1,56 @@
+name = "overdriven_microwave_relay"
+description = "Over-amplified satellite microwave studio-transmitter link with tone inversion, NTSC fringing, interlaced comb lines, and high-frequency noise"
+input = "test_input.mp4"
+output = "output_overdriven_microwave_relay.mp4"
+
+[settings]
+scale = 1.0
+crf = 18
+preset = "medium"
+copy_audio = true
+
+[[passes]]
+shader = "solarize"
+enabled = true
+[passes.params]
+threshold = 0.65
+intensity = 0.50
+mode = 0
+
+[[passes]]
+shader = "ntsc_artifact"
+enabled = true
+[passes.params]
+chroma_fringing = 0.70
+phase_shift = 0.35
+subcarrier_freq = 520.0
+chroma_delay = 0.008
+ringing = 0.40
+intensity = 0.90
+
+[[passes]]
+shader = "bloom"
+enabled = true
+[passes.params]
+threshold = 0.55
+intensity = 0.45
+radius = 1.4
+soft_knee = 0.25
+
+[[passes]]
+shader = "interlaced_scan"
+enabled = true
+[passes.params]
+field_order = 0
+line_thickness = 1.0
+comb_intensity = 0.60
+flicker = 0.30
+jitter = 0.002
+intensity = 0.80
+
+[[passes]]
+shader = "film_grain"
+enabled = true
+[passes.params]
+intensity = 0.22
+size = 1.3

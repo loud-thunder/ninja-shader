@@ -1,0 +1,60 @@
+name = "security_interlaced_cctv"
+description = "Industrial monochrome CCTV security surveillance monitor with interlaced odd/even field scanning, camera RF noise, phosphor trails, and CRT curvature"
+input = "test_input.mp4"
+output = "output_security_interlaced_cctv.mp4"
+
+[settings]
+scale = 1.0
+crf = 18
+preset = "medium"
+copy_audio = true
+
+[[passes]]
+shader = "grayscale"
+enabled = true
+[passes.params]
+strength = 1.0
+
+[[passes]]
+shader = "interlaced_scan"
+enabled = true
+[passes.params]
+field_order = 0
+line_thickness = 1.0
+comb_intensity = 0.55
+flicker = 0.20
+jitter = 0.001
+intensity = 0.85
+
+[[passes]]
+shader = "rf_static"
+enabled = true
+[passes.params]
+noise_intensity = 0.22
+hum_bar_intensity = 0.28
+hum_bar_speed = 0.4
+signal_loss = 0.02
+ghost_lag = 0.025
+ghost_opacity = 0.18
+
+[[passes]]
+shader = "crt_scanlines"
+enabled = true
+[passes.params]
+curvature = 0.11
+scanline_intensity = 0.35
+scanline_count = 420.0
+
+[[passes]]
+shader = "motion_trails"
+enabled = true
+[passes.params]
+decay = 0.30
+
+[[passes]]
+shader = "vignette"
+enabled = true
+[passes.params]
+intensity = 0.50
+radius = 0.82
+softness = 0.35

@@ -1,0 +1,62 @@
+name = "analog_pirate_broadcast"
+description = "Unauthorized pirate television signal hijacking broadcast carrier with rolling sync drift, NTSC subcarrier distortion, head-switching noise, and CRT scanlines"
+input = "test_input.mp4"
+output = "output_analog_pirate_broadcast.mp4"
+
+[settings]
+scale = 1.0
+crf = 18
+preset = "medium"
+copy_audio = true
+
+[[passes]]
+shader = "tape_sync_roll"
+enabled = true
+[passes.params]
+roll_speed = 0.25
+sync_bar_width = 0.07
+sync_bar_noise = 0.55
+skew = 0.05
+tear_intensity = 0.04
+intensity = 0.90
+
+[[passes]]
+shader = "rf_static"
+enabled = true
+[passes.params]
+noise_intensity = 0.30
+hum_bar_intensity = 0.32
+hum_bar_speed = 0.7
+signal_loss = 0.06
+ghost_lag = 0.03
+ghost_opacity = 0.22
+
+[[passes]]
+shader = "ntsc_artifact"
+enabled = true
+[passes.params]
+chroma_fringing = 0.60
+phase_shift = 0.25
+subcarrier_freq = 440.0
+chroma_delay = 0.007
+ringing = 0.35
+intensity = 0.85
+
+[[passes]]
+shader = "vhs_head_switch"
+enabled = true
+[passes.params]
+band_height = 0.045
+skew_amount = 0.04
+noise_intensity = 0.70
+flutter = 0.50
+position = 0
+intensity = 1.0
+
+[[passes]]
+shader = "crt_scanlines"
+enabled = true
+[passes.params]
+curvature = 0.08
+scanline_intensity = 0.26
+scanline_count = 350.0

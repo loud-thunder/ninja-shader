@@ -1,0 +1,57 @@
+name = "uhf_antenna_ghost"
+description = "Over-the-air UHF rabbit-ear antenna television reception with multipath ghosting, RF snow, interlaced scan, and phosphor motion trails"
+input = "test_input.mp4"
+output = "output_uhf_antenna_ghost.mp4"
+
+[settings]
+scale = 1.0
+crf = 18
+preset = "medium"
+copy_audio = true
+
+[[passes]]
+shader = "rf_static"
+enabled = true
+[passes.params]
+noise_intensity = 0.28
+hum_bar_intensity = 0.35
+hum_bar_speed = 0.6
+signal_loss = 0.05
+ghost_lag = 0.035
+ghost_opacity = 0.30
+
+[[passes]]
+shader = "ntsc_artifact"
+enabled = true
+[passes.params]
+chroma_fringing = 0.50
+phase_shift = 0.15
+subcarrier_freq = 420.0
+chroma_delay = 0.006
+ringing = 0.30
+intensity = 0.85
+
+[[passes]]
+shader = "interlaced_scan"
+enabled = true
+[passes.params]
+field_order = 0
+line_thickness = 1.0
+comb_intensity = 0.55
+flicker = 0.20
+jitter = 0.002
+intensity = 0.75
+
+[[passes]]
+shader = "motion_trails"
+enabled = true
+[passes.params]
+decay = 0.25
+
+[[passes]]
+shader = "crt_scanlines"
+enabled = true
+[passes.params]
+curvature = 0.08
+scanline_intensity = 0.25
+scanline_count = 360.0

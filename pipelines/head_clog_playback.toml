@@ -1,0 +1,57 @@
+name = "head_clog_playback"
+description = "Severely dirty VCR video heads with oxide clog dropouts, macroblock pixel corruption, wide chroma bleed, and CRT scanlines"
+input = "test_input.mp4"
+output = "output_head_clog_playback.mp4"
+
+[settings]
+scale = 1.0
+crf = 18
+preset = "medium"
+copy_audio = true
+
+[[passes]]
+shader = "vhs_head_switch"
+enabled = true
+[passes.params]
+band_height = 0.06
+skew_amount = 0.05
+noise_intensity = 0.85
+flutter = 0.55
+position = 0
+intensity = 1.0
+
+[[passes]]
+shader = "vhs_chroma_bleed"
+enabled = true
+[passes.params]
+bleed_distance = 0.035
+chroma_shift = 0.008
+saturation = 1.35
+
+[[passes]]
+shader = "block_corrupt"
+enabled = true
+[passes.params]
+corruption_rate = 0.18
+grid_scale = 16.0
+color_crush = 0.45
+speed = 2.5
+
+[[passes]]
+shader = "rf_static"
+enabled = true
+[passes.params]
+noise_intensity = 0.30
+hum_bar_intensity = 0.35
+hum_bar_speed = 0.8
+signal_loss = 0.08
+ghost_lag = 0.02
+ghost_opacity = 0.15
+
+[[passes]]
+shader = "crt_scanlines"
+enabled = true
+[passes.params]
+curvature = 0.07
+scanline_intensity = 0.28
+scanline_count = 340.0

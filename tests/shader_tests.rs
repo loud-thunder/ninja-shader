@@ -25,8 +25,8 @@ fn test_discover_and_parse_all_starter_shaders() {
     }
 
     assert!(
-        shader_names.len() >= 35,
-        "Expected at least 35 shaders, found {}",
+        shader_names.len() >= 42,
+        "Expected at least 42 shaders, found {}",
         shader_names.len()
     );
 }

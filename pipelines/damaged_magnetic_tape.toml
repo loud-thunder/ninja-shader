@@ -1,0 +1,56 @@
+name = "damaged_magnetic_tape"
+description = "Physically degraded VHS magnetic tape with crinkled tape edge tracking distortion, head-switching noise, severe chroma smear, and film grain"
+input = "test_input.mp4"
+output = "output_damaged_magnetic_tape.mp4"
+
+[settings]
+scale = 1.0
+crf = 18
+preset = "medium"
+copy_audio = true
+
+[[passes]]
+shader = "vhs_tracking"
+enabled = true
+[passes.params]
+bar_intensity = 0.50
+scroll_speed = 0.5
+head_switch_height = 0.03
+line_jitter = 0.006
+
+[[passes]]
+shader = "vhs_head_switch"
+enabled = true
+[passes.params]
+band_height = 0.05
+skew_amount = 0.04
+noise_intensity = 0.75
+flutter = 0.50
+position = 0
+intensity = 1.0
+
+[[passes]]
+shader = "rf_static"
+enabled = true
+[passes.params]
+noise_intensity = 0.20
+hum_bar_intensity = 0.22
+hum_bar_speed = 0.7
+signal_loss = 0.03
+ghost_lag = 0.02
+ghost_opacity = 0.15
+
+[[passes]]
+shader = "vhs_chroma_bleed"
+enabled = true
+[passes.params]
+bleed_distance = 0.025
+chroma_shift = 0.005
+saturation = 1.20
+
+[[passes]]
+shader = "film_grain"
+enabled = true
+[passes.params]
+intensity = 0.22
+size = 1.2

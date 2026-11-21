@@ -1,0 +1,57 @@
+name = "teletext_subcarrier"
+description = "VBI Teletext / Ceefax digital broadcast stream overlay with pixelated block graphics, interlaced scan lines, and bloom"
+input = "test_input.mp4"
+output = "output_teletext_subcarrier.mp4"
+
+[settings]
+scale = 1.0
+crf = 18
+preset = "medium"
+copy_audio = true
+
+[[passes]]
+shader = "pixelate"
+enabled = true
+[passes.params]
+pixel_size = 4.0
+color_levels = 8.0
+grid_line = 0.10
+
+[[passes]]
+shader = "posterize"
+enabled = true
+[passes.params]
+levels = 6.0
+gamma = 1.2
+saturation = 1.3
+
+[[passes]]
+shader = "interlaced_scan"
+enabled = true
+[passes.params]
+field_order = 1
+line_thickness = 1.0
+comb_intensity = 0.40
+flicker = 0.18
+jitter = 0.001
+intensity = 0.70
+
+[[passes]]
+shader = "rf_static"
+enabled = true
+[passes.params]
+noise_intensity = 0.12
+hum_bar_intensity = 0.15
+hum_bar_speed = 0.4
+signal_loss = 0.0
+ghost_lag = 0.015
+ghost_opacity = 0.10
+
+[[passes]]
+shader = "bloom"
+enabled = true
+[passes.params]
+threshold = 0.60
+intensity = 0.35
+radius = 1.0
+soft_knee = 0.2

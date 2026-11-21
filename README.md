@@ -61,7 +61,7 @@ cargo run --release -- gui -i input.mp4 -p pipelines/retro_crt.toml
 
 ### Creator Workflow Highlights
 
-- **Live Recipe Hot-Swapping**: Select the pipeline list and press the **`↑` / `↓` arrow keys** to switch instantly between 53 included pipeline recipes while video plays seamlessly.
+- **Live Recipe Hot-Swapping**: Select the pipeline list and press the **`↑` / `↓` arrow keys** to switch instantly between 76 included pipeline recipes while video plays seamlessly.
 - **Real-Time Parameter & Texture Tuning**: Drag sliders and color pickers for any active pass. For texture-enabled shaders (like `texture_overlay`), switch texture slots dynamically between `📁 File` (with a native "Browse..." file picker), `🌀 Voronoi` (with seed slider and "🎲 Roll" randomizer), or `🌊 Noise / FBM`.
 - **Non-Blocking Background Export**: Click **Render Video** to kick off an asynchronous background render. An animated progress bar tracks completion percentage, rendered frames, and export FPS without dropping preview framerates.
 - **Interactive Preview Controls**:
@@ -141,7 +141,7 @@ flowchart LR
     P6 --> OUT[("Final Rendered Video<br/>(H.264 + Muxed Audio)")]
 ```
 
-### Curated Creative Effect Library (35 Built-In Shaders)
+### Curated Creative Effect Library (42 Built-In Shaders)
 
 #### 👾 1. Cyberpunk, Glitch & Datamosh
 | Shader | Lang | Description & Creative Applications |
@@ -182,7 +182,18 @@ flowchart LR
 | `ascii_matrix` | WGSL | Procedural digital cellular glyph quantization with falling code rain trails |
 | `halftone_cyber` | WGSL | Rotated CMYK / LED dot-matrix halftone screen pattern with variable dot scale |
 
-#### 🛠️ 5. Cinematic Essentials & Utilities
+#### 🕹️ 5. Retro Computing & Broadcast Artifacts
+| Shader | Lang | Description & Creative Applications |
+| :--- | :---: | :--- |
+| `bayer_dither` | WGSL | Ordered 8x8 Bayer matrix dithering with selectable retro palettes (Game Boy, CGA, Amber, Mac 1-bit) |
+| `lcd_matrix` | WGSL | Handheld dot-matrix LCD cells with passive-matrix ghosting, cell gap borders, and olive tint |
+| `interlaced_scan` | WGSL | Interlaced broadcast scanfields with motion comb artifacts and field cadence flicker |
+| `rf_static` | WGSL | VHF/UHF television broadcast RF static snow, rolling AC hum bars, and multipath ghosting |
+| `tape_sync_roll` | WGSL | Vertical hold loss roll de-sync, vertical blanking interval bar, and tape skew tearing |
+| `vhs_head_switch` | WGSL | VCR helical drum head-switching noise band, bottom-of-frame horizontal skew, and tape flutter |
+| `ntsc_artifact` | WGSL | NTSC composite video color subcarrier cross-talk fringing, phase shift, and Y/C delay |
+
+#### 🛠️ 6. Cinematic Essentials & Utilities
 | Shader | Lang | Description & Creative Applications |
 | :--- | :---: | :--- |
 | `fisheye_lens` | WGSL | Optical fisheye and pincushion lens distortion with focal length and edge vignette |
@@ -200,13 +211,27 @@ flowchart LR
 
 ---
 
-## 53 Turnkey Pipeline Recipes
+## 76 Turnkey Pipeline Recipes
 
-`ninja-shader` includes 53 production-ready recipes in `pipelines/` ready to run out of the box:
+`ninja-shader` includes 76 production-ready recipes in `pipelines/` ready to run out of the box:
 
 | Recipe File | Passes | Visual Aesthetic |
 | :--- | :---: | :--- |
 | `ultimate_cyberpunk.toml` | 6 | Duotone split → Neon edge → Hologram → Glitch → Bloom → Vignette |
+| `gameboy_classic.toml` | 4 | Pixelate → 4-shade olive Bayer dither → Passive LCD matrix ghosting → Vignette |
+| `cursed_vhs_tape.toml` | 6 | VHS head switch → V-Hold tape sync roll → Tracking error → RF static → Chromatic aberration → Vignette |
+| `uhf_antenna_ghost.toml` | 5 | RF static snow & hum → NTSC color fringing → Interlaced scan → Motion trails → CRT scanlines |
+| `amber_phosphor_terminal.toml` | 5 | Amber Bayer dither → Phosphor motion trails → CRT mask → CRT scanlines → Bloom |
+| `cga_mode1_cyan_magenta.toml` | 5 | Pixelate → Mode 1 Cyan/Magenta Bayer dither → CRT scanlines → Bloom → Vignette |
+| `arcade_interlaced_rgb.toml` | 4 | Interlaced scanfields with comb tearing → Phosphor triad mask → Bloom → Vignette |
+| `late_night_cable_scrambler.toml` | 4 | Tape sync roll de-sync → Glitch displacement → RF static → CRT scanlines |
+| `ntsc_composite_rf.toml` | 5 | NTSC artifact fringing → VHS chroma bleed → RF static → CRT scanlines → Vignette |
+| `head_clog_playback.toml` | 5 | Head-switch noise → Wide chroma bleed → MPEG block corruption → RF static → Scanlines |
+| `macintosh_1bit_classic.toml` | 3 | Pixelate → 1-bit B&W Bayer dithering → Vignette framing |
+| `emergency_broadcast_eashorror.toml` | 6 | Interlaced scan → RF snow → NTSC fringing → Tape sync roll → CRT scanlines → Vignette |
+| `security_interlaced_cctv.toml` | 6 | Monochrome Rec. 709 → Interlaced scan → RF static → CRT scanlines → Motion trails → Vignette |
+| `virtual_boy_monochrome.toml` | 5 | Pixelate → Bayer dither → Crimson red duotone → Motion trails → Vignette |
+| `commodore_vic_composite.toml` | 5 | NTSC artifact fringing → Posterize palette → CRT scanlines → Film grain → Vignette |
 | `voronoi_cyber_cells.toml`| 4 | Procedural GPU Voronoi borders overlay → Duotone split → Bloom → Vignette |
 | `trinitron_crt_deluxe.toml`| 5 | Fisheye curvature → CRT phosphor mask → CRT scanlines → Bloom → Vignette |
 | `bio_mesh_cellular.toml` | 4 | Manhattan Voronoi cellular lattice → Duotone cyber → Bloom → Vignette |
@@ -236,7 +261,7 @@ flowchart LR
 | `glitch_art_gallery.toml` | 4 | Pixel sort smearing → Macroblock corruption → RGB wave → Halftone dot matrix |
 | `noir_film.toml` | 4 | Rec. 709 black & white → Dirty texture overlay → Film grain → Deep vignette |
 
-*Explore all 53 recipes in [`pipelines/`](pipelines/).*
+*Explore all 76 recipes in [`pipelines/`](pipelines/).*
 
 ---
 
