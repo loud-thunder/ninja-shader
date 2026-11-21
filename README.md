@@ -92,6 +92,14 @@ choco install ffmpeg
 
 ### 2. Build & Launch
 
+#### Quick Developer Install (Symlink)
+To build the release binary and symlink `ninja-shader` into your PATH:
+
+```bash
+./scripts/install.sh
+```
+
+#### Manual Build
 ```bash
 # Clone repository
 git clone https://github.com/leouofa/ninja-shader.git
